@@ -1,0 +1,73 @@
+package com.applicationcourse.mobile.graphmaster.Database;
+
+import java.util.List;
+
+/**
+ * Created by teresa on 17/02/16.
+ */
+public class SubQuestion {
+    private long subQuesId;
+    private String type;
+    private String function;
+    private String subQuestion;
+    private List<Options> optionsList;
+
+    //get from database
+    public SubQuestion(long id, String type, String function,String subQuestion) {
+        this.subQuesId = id;
+        this.subQuestion = subQuestion;
+        this.type = type;
+        this.function = function;
+    }
+
+    //save into database
+    public SubQuestion( String type, String function,String subQuestion){
+        this.subQuestion = subQuestion;
+        this.type = type;
+        this.function = function;
+    }
+
+    //empty constructor
+    public SubQuestion(){
+
+    }
+    public long getSubQuesId() {
+        return subQuesId;
+    }
+
+    public void setSubQuesId(long subQuesId) {
+        this.subQuesId = subQuesId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFunction() {
+        return function;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
+    }
+
+    public String getSubQuestion() {
+        return subQuestion;
+    }
+
+    public void setSubQuestion(String subQuestion) {
+        this.subQuestion = subQuestion;
+    }
+
+    public List<Options> getOptionsList() {
+        return optionsList;
+    }
+
+    public void setOptionsList(List<Options> optionsList) {
+        this.optionsList = optionsList;
+    }
+}

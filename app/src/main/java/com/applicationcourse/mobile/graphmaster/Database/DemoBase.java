@@ -1,10 +1,8 @@
-package com.applicationcourse.mobile.graphmaster;
-
-import android.support.v4.app.FragmentActivity;
+package com.applicationcourse.mobile.graphmaster.Database;
 
 /**
  * Created by teresa on 15/02/16.
- */
+
 public abstract class DemoBase extends FragmentActivity {
 
     protected String[] mMonths = new String[] {
@@ -24,3 +22,4 @@ public abstract class DemoBase extends FragmentActivity {
         //overridePendingTransition(R.anim.move_left_in_activity, R.anim.move_right_out_activity);
     }
 }
+ */

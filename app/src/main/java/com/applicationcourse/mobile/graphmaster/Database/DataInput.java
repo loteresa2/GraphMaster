@@ -1,8 +1,8 @@
-package com.applicationcourse.mobile.graphmaster;
+package com.applicationcourse.mobile.graphmaster.Database;
 
 /**
  * Created by teresa on 16/02/16.
- */
+
 public class DataInput {
     String dataComparison;
     String chartType;
@@ -22,3 +22,4 @@ public class DataInput {
         this.chartType = chartType;
     }
 }
+ */

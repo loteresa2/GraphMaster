@@ -1,4 +1,4 @@
-package com.applicationcourse.mobile.graphmaster;
+package com.applicationcourse.mobile.graphmaster.UI;
 
 /**
  * Created by teresa on 15/02/16.
