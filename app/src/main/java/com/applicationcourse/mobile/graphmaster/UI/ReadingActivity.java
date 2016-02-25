@@ -111,6 +111,8 @@ public class ReadingActivity extends AppCompatActivity {
                 String selected = answer.getText().toString();
                 if(selected.equals(currentQ.getSubQuestionList().get(subQuesCount).getAnswerList().get(0))){
                     txtExplanation.setText("Good Job! Correct Answer");
+                    btnNext.setEnabled(true);
+                    btnSubmit.setEnabled(false);
                 }else{
                     txtExplanation.setText(currentQ.getSubQuestionList().get(subQuesCount).getExplainList().get(0));
                 }
@@ -119,11 +121,13 @@ public class ReadingActivity extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(subQuesCount < currentQ.getSubQuestionList().size()) {
+                if(subQuesCount < (currentQ.getSubQuestionList().size()-1)) {
                     ++subQuesCount;
                     setQuestionView();
+                    btnSubmit.setEnabled(true);
                 }else{
                     Toast.makeText(getBaseContext(),"Need to further implement",Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
@@ -143,6 +147,6 @@ public class ReadingActivity extends AppCompatActivity {
 
 
         txtExplanation.setText(null);
-        btnNext.setEnabled(true);
+        btnNext.setEnabled(false);
     }
 }
