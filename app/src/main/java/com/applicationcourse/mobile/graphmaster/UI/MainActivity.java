@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.applicationcourse.mobile.graphmaster.Database.DatabaseHandler;
 import com.applicationcourse.mobile.graphmaster.Database.MainQues;
+import com.applicationcourse.mobile.graphmaster.Database.MainQuesHData;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHeading;
 import com.applicationcourse.mobile.graphmaster.Database.Options;
 import com.applicationcourse.mobile.graphmaster.Database.SubQuestion;
@@ -29,6 +30,7 @@ public class MainActivity extends Activity {
         mContext = this;
         //initialization
         databaseHandler = DatabaseHandler.getHandler(mContext);
+        DatabaseHandler.deleteDatabase();
         Button btnRead = (Button) findViewById(R.id.btnRead);
         Button btnCreate = (Button) findViewById(R.id.btnCreate);
         Button btnOwn = (Button) findViewById(R.id.btnOwn);
@@ -121,16 +123,6 @@ public class MainActivity extends Activity {
         value1.setAnswer("F");
         value1.setExplanation("It cannot be this answer because...");
         databaseHandler.addOption(value1);
-        //MainQuesHeading
-        MainQuesHeading heading = new MainQuesHeading();
-        heading.setMqId(1);
-        heading.setHeading("Water(ml)");
-        databaseHandler.addHeading(heading);
-
-        MainQuesHeading heading1 = new MainQuesHeading();
-        heading1.setMqId(1);
-        heading1.setHeading("Height(cm)");
-        databaseHandler.addHeading(heading1);
 
         //subquestion
         subQuestion = new SubQuestion();
@@ -152,7 +144,7 @@ public class MainActivity extends Activity {
         value.setExplanation("Great Work! Correct Answer!");
         databaseHandler.addOption(value);
 
-         value1 = new Options();
+        value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(3);
         value1.setOptionValue("Height");
@@ -176,8 +168,19 @@ public class MainActivity extends Activity {
         value1.setExplanation("It cannot be this answer because...");
         databaseHandler.addOption(value1);
 
+        //MainQuesHeading
+        MainQuesHeading heading = new MainQuesHeading();
+        heading.setMqId(1);
+        heading.setHeading("Water(ml)");
+        databaseHandler.addHeading(heading);
+
+        MainQuesHeading heading1 = new MainQuesHeading();
+        heading1.setMqId(1);
+        heading1.setHeading("Height(cm)");
+        databaseHandler.addHeading(heading1);
+
         //Table Data
-        /*MainQuesHData data = new MainQuesHData();
+        MainQuesHData data = new MainQuesHData();
         data.setMqId(1);
         data.sethId(1);
         data.setOrdering(1);
@@ -232,7 +235,6 @@ public class MainActivity extends Activity {
         data7.setData("6");
         data7.setOrdering(4);
         databaseHandler.addHData(data7);
-*/
 
     }
 }

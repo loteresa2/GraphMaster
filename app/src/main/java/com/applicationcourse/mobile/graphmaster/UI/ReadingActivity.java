@@ -74,8 +74,15 @@ public class ReadingActivity extends AppCompatActivity {
         }
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
         for(MainQues mainQues : mainQuesList){
-            Log.i("Main Question : " , mainQues.getQuestion());
+            Log.i("Main Question : ", mainQues.getQuestion());
             txtQuestion.setText(mainQues.getQuestion());
+            for(MainQuesHeading mainQuesHeading: mainQues.getMainQuesHeadList()){
+                Log.i("Main Heading : ",mainQuesHeading.getHeading());
+                for(MainQuesHData mainQuesHData: mainQuesHeading.getMainQuesHDataList()){
+                    Log.i("HData Order: ",mainQuesHData.getOrdering()+"");
+                    Log.i("Main HData: ",mainQuesHData.getData());
+                }
+            }
             for(SubQuestion subQuestion: mainQues.getSubQuestionList()) {
                 Log.i("Sub Question : ",subQuestion.getSubQuestion());
                 txtSubQues.setText(subQuestion.getSubQuestion());

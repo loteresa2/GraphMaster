@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-// note: pending --> ordering of the heading data value
+
 /**
  * Created by Aiping Xiao on 2016-02-21.
  */
@@ -65,10 +65,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_HEADING = "heading";
 
     /////////////////////////Table Heading data/////////////////////////////////////////////
-    public static final String TABLE_HDATA_NAME = "headingData";
+    public static final String TABLE_HDATA_NAME = "headingValue";
     public static final String COLUMN_MAIND_ID = "mainId";
     public static final String COLUMN_HEADINGD_ID = "headingId";
-    public static final String COLUMN_ORDER = "order";
+    public static final String COLUMN_ORDER = "ordering";
     public static final String COLUMN_DATA = "data";
 
     // Database creation sql statement
@@ -114,7 +114,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "("
             + COLUMN_MAIND_ID + " integer not null,"
             + COLUMN_HEADINGD_ID + " integer not null,"
-            + COLUMN_ORDER + "integer not null,"
+            + COLUMN_ORDER + " integer not null,"
             + COLUMN_DATA + " text not null"
             + ");";
     ////////////////////////////////////////////////////////////////////////////////
@@ -160,6 +160,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
+        //Added now so that data is not repeated.  Remove later
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_ENTRIES);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_OPTION_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_HEADING_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_HDATA_NAME);
+
         database.execSQL(DATABASE_MAIN_CREATE);
         database.execSQL(DATABASE_SUB_CREATE);
         database.execSQL(DATABASE_OPTION_CREATE);
@@ -182,11 +189,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // This deletes a database, but also sets up an empty database after
-    private void deleteDatabase() {
+    public static  void deleteDatabase() {
         mContext.deleteDatabase(DATABASE_NAME);
         databaseHandler = null;
         DatabaseHandler.initHandler(mContext);
-        Log.d(TAG, "delete Database --> delete and reinitialization Sucessful");
+        //Log.d(TAG, "delete Database --> delete and reinitialization Sucessful");
     }
 
     // Use this to set the Backup storage location of the backups - static since before initialized
@@ -611,7 +618,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Uses a cursor to query from the database.
         // Provides the strings we want from the query and the query parameters
 
-        String countQuery = "SELECT * FROM " + TABLE_HDATA_NAME + " WHERE " + COLUMN_MAIND_ID + " =? AND " + COLUMN_HEADINGD_ID + " =? ";
+        String countQuery = "SELECT * FROM " + TABLE_HDATA_NAME + " WHERE " + COLUMN_MAIND_ID + " =? AND " + COLUMN_HEADINGD_ID + " =? ORDER BY "+COLUMN_ORDER+" ASC";
         Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID), String.valueOf(HeadingID)});
 
         if (cursor != null)
