@@ -82,4 +82,16 @@ public class Options {
     public void setSubQuesId(long subQuesId) {
         this.subQuesId = subQuesId;
     }
+
+    @Override
+    public String toString() {
+        return "Options{" +
+                "mqId=" + mqId +
+                ", subQuesId=" + subQuesId +
+                ", optionId=" + optionId +
+                ", optionValue='" + optionValue + '\'' +
+                ", answer='" + answer + '\'' +
+                ", explanation='" + explanation + '\'' +
+                '}';
+    }
 }

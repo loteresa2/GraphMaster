@@ -14,7 +14,7 @@
     tools:context=".UI.ReadingActivity">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/relativeLayout"
+        android:id="@+id/RelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".QuizActivity" >
@@ -37,6 +37,23 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.04"
                 android:layout_below="@+id/txtSubQues">
+                <RadioButton
+                    android:id="@+id/radio0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="RadioButton"
+                    />
+                <RadioButton
+                    android:id="@+id/radio1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RadioButton" />
+                <RadioButton
+                    android:id="@+id/radio2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RadioButton" />
             </RadioGroup>
             <TextView
                 android:id="@+id/txtExpl"
