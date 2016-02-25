@@ -521,6 +521,51 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return optionList;
     }
 
+    //Get the answers for mainID and sunID
+    public static List<String> getAnswerList(long mainID, long subID) {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<String> answerList = new ArrayList<String>();
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+
+        String countQuery = "SELECT optionValue FROM " + TABLE_OPTION_NAME + " WHERE " + COLUMN_MAINQ_ID + " =? AND " + COLUMN_SUBQ_ID + " =? AND "+COLUMN_ANSWER+" =? ";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID), String.valueOf(subID),"T"});
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            answerList.add(cursor.getString(0));//Option Value that's correct
+            cursor.moveToNext();
+        }
+
+        db.close();
+        return answerList;
+    }
+    //Get the explanation for mainID and sunID
+    public static List<String> getExplanationList(long mainID, long subID) {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<String> answerList = new ArrayList<String>();
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+
+        String countQuery = "SELECT explanation FROM " + TABLE_OPTION_NAME + " WHERE " + COLUMN_MAINQ_ID + " =? AND " + COLUMN_SUBQ_ID + " =? AND "+COLUMN_ANSWER+" =? ";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID), String.valueOf(subID),"F"});
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            answerList.add(cursor.getString(0));//answer
+            cursor.moveToNext();
+        }
+
+        db.close();
+        return answerList;
+    }
+
     ////////////////////////////////////////////////////////////Heading/////////////////////////////////////////////////////////////////////////////
     //Get single heading row value from db
     public MainQuesHeading getHeading(int id) {

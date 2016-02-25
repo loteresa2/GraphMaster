@@ -11,6 +11,8 @@ public class SubQuestion {
     private String function;
     private String subQuestion;
     private List<Options> optionsList;
+    private List<String> answerList;
+    private List<String> explainList;
 
     //get from database
     public SubQuestion(long id, String type, String function,String subQuestion) {
@@ -31,6 +33,7 @@ public class SubQuestion {
     public SubQuestion(){
 
     }
+
     public long getSubQuesId() {
         return subQuesId;
     }
@@ -69,5 +72,21 @@ public class SubQuestion {
 
     public void setOptionsList(List<Options> optionsList) {
         this.optionsList = optionsList;
+    }
+
+    public List<String> getAnswerList() {
+        return answerList;
+    }
+
+    public void setAnswerList(List<String> answerList) {
+        this.answerList = answerList;
+    }
+
+    public List<String> getExplainList() {
+        return explainList;
+    }
+
+    public void setExplainList(List<String> explainList) {
+        this.explainList = explainList;
     }
 }

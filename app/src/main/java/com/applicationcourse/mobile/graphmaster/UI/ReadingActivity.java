@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +20,7 @@ import com.applicationcourse.mobile.graphmaster.Database.SubQuestion;
 import com.applicationcourse.mobile.graphmaster.R;
 
 import java.util.List;
-
+//Pending -- needs to implement multiple correct answers
 public class ReadingActivity extends AppCompatActivity {
 
     List<MainQues> mainQuesList;
@@ -44,6 +45,8 @@ public class ReadingActivity extends AppCompatActivity {
         List<MainQuesHData> mainQuesHDataList;
         List<SubQuestion> subQuestionList;
         List<Options> optionsList;
+        List<String> answerList;
+        List<String> explanationList;
         mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line");
         subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
         for(MainQues main : mainQuesList){
@@ -59,6 +62,10 @@ public class ReadingActivity extends AppCompatActivity {
             for(SubQuestion subQuestion : subQuestionList){
                 optionsList = DatabaseHandler.getOptionList(main.getMqId(),subQuestion.getSubQuesId());
                 subQuestion.setOptionsList(optionsList);
+                answerList = DatabaseHandler.getAnswerList(main.getMqId(),subQuestion.getSubQuesId());
+                subQuestion.setAnswerList(answerList);
+                explanationList = DatabaseHandler.getExplanationList(main.getMqId(),subQuestion.getSubQuesId());
+                subQuestion.setExplainList(explanationList);
             }
             //set the subquestion
             main.setSubQuestionList(subQuestionList);
@@ -99,7 +106,14 @@ public class ReadingActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getBaseContext(), "Need to further implement, Teresa is looking into it", Toast.LENGTH_SHORT).show();
+                RadioGroup grp = (RadioGroup) findViewById(R.id.radioSetupSel);
+                RadioButton answer = (RadioButton) findViewById(grp.getCheckedRadioButtonId());
+                String selected = answer.getText().toString();
+                if(selected.equals(currentQ.getSubQuestionList().get(subQuesCount).getAnswerList().get(0))){
+                    txtExplanation.setText("Good Job! Correct Answer");
+                }else{
+                    txtExplanation.setText(currentQ.getSubQuestionList().get(subQuesCount).getExplainList().get(0));
+                }
             }
         });
         btnNext.setOnClickListener(new View.OnClickListener() {
