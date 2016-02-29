@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
         //add data
         //Main Question
         MainQues mainQues = new MainQues();
-        mainQues.setQuestion("Alice is very fond of growing plants. She measures the height of her plant as shown");
+        mainQues.setQuestion("Alice loves to grow rose bushes.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measure the data in the table below.");
         mainQues.setFunction("Create");
         mainQues.setType("Line");
         databaseHandler.addQuestionValue(mainQues);
@@ -83,52 +83,60 @@ public class MainActivity extends Activity {
         SubQuestion subQuestion = new SubQuestion();
         subQuestion.setFunction("Create");
         subQuestion.setType("Line");
-        subQuestion.setSubQuestion("Which type of graph are you going to draw for the given data?");
+        subQuestion.setSubQuestion("1.What type of graph should Alice create to show this data?");
         databaseHandler.addSubQValue(subQuestion);
         SubQuestion subQuestion1 = new SubQuestion();
         subQuestion1.setFunction("Create");
         subQuestion1.setType("Line");
-        subQuestion1.setSubQuestion("What kind of data are you comparing ?");
+        subQuestion1.setSubQuestion("2.Now that you’ve decided to create a line graph or scatter plot, you have to decide which variable is the independent and dependent variable.");
         databaseHandler.addSubQValue(subQuestion1);
         //option
         Options value = new Options();
         value.setMqId(1);
         value.setSubQuesId(1);
-        value.setOptionValue("LINE OR SCATTER");
+        value.setOptionValue("Line graph or scatter plot");
         value.setAnswer("T");
-        value.setExplanation("Great Work! Correct Answer!");
+        value.setExplanation("Correct.  When graphing two sets of numerical data we show this data as a line graph or scatter plot.");
         databaseHandler.addOption(value);
 
         Options value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(1);
-        value1.setOptionValue("BAR OR PIE");
+        value1.setOptionValue("Pie graph");
         value1.setAnswer("F");
-        value1.setExplanation("It cannot be this answer because...");
+        value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Bar graphs are used to graph categories against a set of numbers.  For example, a bar graph would be perfect if you were graphing favourite type of smooth (a category) versus number of people who choose to drink that smoothie at the school fair (numerical data).");
+        databaseHandler.addOption(value1);
+
+        value1 = new Options();
+        value1.setMqId(1);
+        value1.setSubQuesId(1);
+        value1.setOptionValue("Bar graph");
+        value1.setAnswer("F");
+        value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Pie graphs are used to graph categories against a set of numbers, when those numbers can be represented as percentages.  For example, a pie graph would be perfect if you were graphing the favourite animal of students in a class.  The animals are a category and the number of students is your numerical data that can be represented as a percentage.   ");
         databaseHandler.addOption(value1);
 
         //option
         value = new Options();
         value.setMqId(1);
         value.setSubQuesId(2);
-        value.setOptionValue("NUMBER VS NUMBER");
-        value.setAnswer("T");
-        value.setExplanation("Great Work! Correct Answer!");
+        value.setOptionValue("Height of plant is the independent variable. Amount of water added is the dependent variable.");
+        value.setAnswer("F");
+        value.setExplanation("Oops.The height of the plant depends on the amount of water that is added to it.  Because it depends on the amount of water it is the dependent variable.  The amount of water is the independent variable.");
         databaseHandler.addOption(value);
 
         value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(2);
-        value1.setOptionValue("NUMBER VS CATEGORY");
-        value1.setAnswer("F");
-        value1.setExplanation("It cannot be this answer because...");
+        value1.setOptionValue("Amount of water added is the independent variable.  Height of plant is the dependent variable.");
+        value1.setAnswer("T");
+        value1.setExplanation("Correct! Good job.  The height of the plant depends on the amount of water, so it is the dependent variable and the independent variable is the amount of water added.");
         databaseHandler.addOption(value1);
 
         //subquestion
         subQuestion = new SubQuestion();
         subQuestion.setFunction("Create");
         subQuestion.setType("Line");
-        subQuestion.setSubQuestion("What will be in you x-axis?");
+        subQuestion.setSubQuestion("Which axis does the independent variable go on?");
         databaseHandler.addSubQValue(subQuestion);
         subQuestion1 = new SubQuestion();
         subQuestion1.setFunction("Create");
@@ -136,10 +144,10 @@ public class MainActivity extends Activity {
         subQuestion1.setSubQuestion("What will be in your y-axis ?");
         databaseHandler.addSubQValue(subQuestion1);
         //option
-         value = new Options();
+        value = new Options();
         value.setMqId(1);
         value.setSubQuesId(3);
-        value.setOptionValue("Water");
+        value.setOptionValue("The x-axis");
         value.setAnswer("T");
         value.setExplanation("Great Work! Correct Answer!");
         databaseHandler.addOption(value);
@@ -147,9 +155,9 @@ public class MainActivity extends Activity {
         value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(3);
-        value1.setOptionValue("Height");
+        value1.setOptionValue("The y-axis");
         value1.setAnswer("F");
-        value1.setExplanation("It cannot be this answer because...");
+        value1.setExplanation("Incorrect. The x-axis is where the independent variable is located.  The dependent variable goes on the y- axis.");
         databaseHandler.addOption(value1);
         //option
         value = new Options();
@@ -190,21 +198,35 @@ public class MainActivity extends Activity {
         MainQuesHData data1 = new MainQuesHData();
         data1.setMqId(1);
         data1.sethId(1);
-        data1.setData("1");
+        data1.setData("4");
         data1.setOrdering(2);
         databaseHandler.addHData(data1);
 
         MainQuesHData data2 = new MainQuesHData();
         data2.setMqId(1);
         data2.sethId(1);
-        data2.setData("2");
+        data2.setData("8");
         data2.setOrdering(3);
         databaseHandler.addHData(data2);
 
         MainQuesHData data3 = new MainQuesHData();
         data3.setMqId(1);
         data3.sethId(1);
-        data3.setData("3");
+        data3.setData("10");
+        data3.setOrdering(4);
+        databaseHandler.addHData(data3);
+
+        data3 = new MainQuesHData();
+        data3.setMqId(1);
+        data3.sethId(1);
+        data3.setData("12");
+        data3.setOrdering(4);
+        databaseHandler.addHData(data3);
+
+        data3 = new MainQuesHData();
+        data3.setMqId(1);
+        data3.sethId(1);
+        data3.setData("17");
         data3.setOrdering(4);
         databaseHandler.addHData(data3);
 
@@ -232,9 +254,22 @@ public class MainActivity extends Activity {
         MainQuesHData data7 = new MainQuesHData();
         data7.setMqId(1);
         data7.sethId(2);
-        data7.setData("6");
+        data7.setData("35");
         data7.setOrdering(4);
         databaseHandler.addHData(data7);
 
+        data7 = new MainQuesHData();
+        data7.setMqId(1);
+        data7.sethId(2);
+        data7.setData("52");
+        data7.setOrdering(4);
+        databaseHandler.addHData(data7);
+
+        data7 = new MainQuesHData();
+        data7.setMqId(1);
+        data7.sethId(2);
+        data7.setData("40");
+        data7.setOrdering(4);
+        databaseHandler.addHData(data7);
     }
 }

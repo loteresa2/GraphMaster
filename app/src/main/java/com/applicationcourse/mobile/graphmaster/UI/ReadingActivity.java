@@ -1,14 +1,18 @@
 package com.applicationcourse.mobile.graphmaster.UI;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +31,9 @@ public class ReadingActivity extends AppCompatActivity {
     List<MainQues> mainQuesList;
     int score=0;
     int qid=0;
+    int i = 1;
     int subQuesCount=0;
+    int optionCount = 0;
     MainQues currentQ;
     TextView txtQuestion;
     TextView txtSubQues;
@@ -74,9 +80,7 @@ public class ReadingActivity extends AppCompatActivity {
         txtQuestion=(TextView)findViewById(R.id.txtMainQues);
         txtSubQues=(TextView)findViewById(R.id.txtSubQues);
        // txtOptions=(TextView)findViewById(R.id.txtOptions);
-        rda=(RadioButton)findViewById(R.id.radio0);
-        rdb=(RadioButton)findViewById(R.id.radio1);
-        rdc=(RadioButton)findViewById(R.id.radio2);
+
         txtExplanation=(TextView)findViewById(R.id.txtExpl);
         btnNext=(Button)findViewById(R.id.btnNext);
         btnSubmit = (Button)findViewById(R.id.btnSubmit);
@@ -124,6 +128,11 @@ public class ReadingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(subQuesCount < (currentQ.getSubQuestionList().size()-1)) {
                     ++subQuesCount;
+                    RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioSetupSel);
+                    radioGroup.clearCheck();
+                    radioGroup.removeAllViews();
+                    TableLayout tableLayout = (TableLayout)findViewById(R.id.table);
+                    tableLayout.removeAllViews();
                     setQuestionView();
                     btnSubmit.setEnabled(true);
                 }else{
@@ -142,11 +151,62 @@ public class ReadingActivity extends AppCompatActivity {
 
         //Need to dynamically generate the radio options
         // txtOptions.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().toString());
-        rda.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(0).getOptionValue());
-        rdb.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(1).getOptionValue());
+        //rda.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(0).getOptionValue());
+        //rdb.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(1).getOptionValue());
 //        rdc.setText(currentQ.getSubQuestionList().get(qid).getOptionsList().get(2).getOptionValue());
+/////////////////////////////////generate the option buttons//////////////////////////////////////
+        List<Options> optionsList = currentQ.getSubQuestionList().get(subQuesCount).getOptionsList();
+        for (Options options : optionsList){
+            RadioButton radioButton = new RadioButton(this);
+            radioButton.setId(0 + i);
+            if(optionCount ==0) {
+                radioButton.setChecked(true);
+            }
+            radioButton.setText(options.getOptionValue());
+            ((ViewGroup) findViewById(R.id.radioSetupSel)).addView(radioButton);
 
+            i++;
+            optionCount++;
+        }
+        optionCount = 0;
+        ////////////////////////////////////////generate the table/////////////////////////////////////////
 
+        int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
+        int colNum = currentQ.getMainQuesHeadList().size();
+        TableLayout tableLayout = (TableLayout)findViewById(R.id.table);
+        //set the header of the table
+        TableRow rowHeader = new TableRow(this);
+        rowHeader.setId(0);
+        rowHeader.setBackgroundColor(Color.GRAY);
+        //rowHeader.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        for (int x = 1; x<=colNum;x++){
+            TextView headerName = new TextView(this);
+            headerName.setId(0 + i);
+            headerName.setText(currentQ.getMainQuesHeadList().get(x - 1).getHeading());
+            //headerName.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+            headerName.setTextColor(Color.WHITE);
+            headerName.setPadding(5, 5, 5, 5);
+            rowHeader.addView(headerName);
+            i++;
+        }
+        tableLayout.addView(rowHeader);
+        for(int x = 1; x<=rowNum;x++){
+            TableRow tableRow = new TableRow(this);
+            //tableRow.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            //column
+            int headingNo = 0;
+            for (int y = 1;y<=colNum;y++){
+                TextView textView = new TextView(this);
+                textView.setId(0+i);
+                //textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+                textView.setText(currentQ.getMainQuesHeadList().get(headingNo).getMainQuesHDataList().get(x - 1).getData());
+                headingNo++;
+                tableRow.addView(textView);
+                i++;
+            }
+            tableLayout.addView(tableRow);
+
+        }
 
         txtExplanation.setText(null);
         btnNext.setEnabled(false);

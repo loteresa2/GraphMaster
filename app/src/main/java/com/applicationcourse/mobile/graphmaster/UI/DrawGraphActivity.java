@@ -7,10 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -67,27 +64,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         canvas = new Canvas(mutableBitmap);
         paint = new Paint();
         paint.setColor(Color.BLACK);
-    }
-
-    public void paintPicture() {
-        // get our spacing values
-        int xSpacing = (int) Math.floor(width/lineDensity);
-        int ySpacing = (int) Math.floor(height/lineDensity);
-
-        for(int i = 0; i< width; i++) {
-            for (int j = 0; j < height; j++) {
-                // test for x line
-                if((i % xSpacing) == 0)
-                {
-                    staticBitmap.setPixel(i,j,currentColor);
-                }
-                // test for y line
-                if((j % ySpacing) == 0)
-                {
-                    staticBitmap.setPixel(i,j,currentColor);
-                }
-            }
-        }
     }
 
     public Integer calculatePixelValue(int location)
@@ -165,7 +141,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
 
                     Log.i("Diff is : ", diff + "");
                     Log.i("Interpreted pts: ", String.valueOf(nearestWholeNo) + "");
-                    final int newXPosition;cd 
+                    final int newXPosition;
                     if(diff > nearestWholeNo){
                         newXPosition = Math.round(downx - (downx % 100));
                         canvas.drawCircle(newXPosition, Y,4, paint);
