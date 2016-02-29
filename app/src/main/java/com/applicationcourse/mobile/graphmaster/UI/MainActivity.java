@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
         //add data
         //Main Question
         MainQues mainQues = new MainQues();
-        mainQues.setQuestion("Alice loves to grow rose bushes.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measure the data in the table below.");
+        mainQues.setQuestion("Alice loves to grow rose bushes.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measures the data in the table below.");
         mainQues.setFunction("Create");
         mainQues.setType("Line");
         databaseHandler.addQuestionValue(mainQues);
