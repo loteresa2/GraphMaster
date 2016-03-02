@@ -253,8 +253,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 Log.i("EachBoxX: ", eachBoxX + "");
                 Log.i("EachBoxY: ", eachBoxY + "");
                 drawXAxisPoints(downx, downy, eachBoxX, (eachBoxY * 9));
-                drawYAxisPoints(downx,downy,eachBoxY,eachBoxX);
-
+                drawYAxisPoints(downx, downy, eachBoxY, eachBoxX);
+                drawPoints(downx,downy,eachBoxX,eachBoxY,1);
                 mImageView.invalidate();
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -271,8 +271,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             Log.i("Touch pts: ", x + "");
             Log.i("Touch pts: ", y + "");
             Log.i("Variation Y touch ", String.valueOf((yValue) / 20));
-
-
 
             final float usrYPosDisply= (yValue + (yValue)/20 );  //For displaying the entered point by user at pos lower than the x-axis
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -312,8 +310,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
 
     public float interpretTouchPosition(float x, float initialVal, float eachBoxVal){
         /* This function will try to interpret the x value touched on the x-axis.
-        example: each box is 100unit, then if a user touched x value is 200-220 then it interpret it as 200,
-        if its 230-270 then interpret it as 250 and 270-300 interpret it as 300 and so on..
+        example: each box is 100unit, then if a user touched x value is 200-250 then it interpret it as 200,
+        if its 250-300 interpret it as 300 and so on..
          */
         float difference = Math.abs(x - initialVal);
         int boxAwayFromAxis = Math.round(difference/eachBoxVal);
@@ -381,6 +379,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         if( (x > xInitial && y >  yInitial) && (x < XEnd) && y < YEnd) {
             int intepretedXVal = interpretXInterval(x, xInitial, eachBoxX, multiple);
             int intepretedYVal = interpretYInterval(y, yInitial, eachBoxY, multiple);
+            paint.setColor(Color.GREEN);
+
+            canvas.drawCircle(intepretedXVal, intepretedYVal, 4, paint);
+            paint.setColor(Color.BLACK);
             Toast.makeText(getBaseContext(), "X: " + intepretedXVal, Toast.LENGTH_SHORT).show();
             Toast.makeText(getBaseContext(), "Y: " + intepretedYVal, Toast.LENGTH_SHORT).show();
         }
