@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ReadingActivity.class);
+                Intent intent = new Intent(MainActivity.this, DrawGraphActivity.class);
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
