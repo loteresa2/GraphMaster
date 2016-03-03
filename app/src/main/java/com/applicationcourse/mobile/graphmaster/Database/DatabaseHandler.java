@@ -41,6 +41,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_QUESTION = "question";
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_FUNCTION = "function";
+    public static final String COLUMN_GRADE = "grade";
 
     ///////////////////////SubQuestion Table////////////////////////////////////
     public static final String TABLE_NAME = "Subquestion";
@@ -48,6 +49,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_SUB_FUNCTION = "function";
     public static final String COLUMN_SUB_TYPE = "type";
     public static final String COLUMN_SUBQUESTION = "subquestion";
+    public static final String COLUMN_OPTION_TYPE = "optionType";
 
     ////////////////////////Option Table//////////////////////////////////////////
     public static final String TABLE_OPTION_NAME = "option";
@@ -78,7 +80,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + COLUMN_MAIN_ID + " integer primary key autoincrement,"
             + COLUMN_QUESTION + " text not null,"
             + COLUMN_TYPE + " text not null,"
-            + COLUMN_FUNCTION + " text not null"
+            + COLUMN_FUNCTION + " text not null,"
+            + COLUMN_GRADE +" text not null "
             + ");";
 
     private static final String DATABASE_SUB_CREATE = "CREATE TABLE "
@@ -87,7 +90,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + COLUMN_SUB_ID + " integer primary key autoincrement ,"
             + COLUMN_SUB_FUNCTION + " text not null,"
             + COLUMN_SUB_TYPE + " text not null,"
-            + COLUMN_SUBQUESTION + " text not null"
+            + COLUMN_SUBQUESTION + " text not null,"
+            + COLUMN_OPTION_TYPE + " text not null"
             + ");";
 
     private static final String DATABASE_OPTION_CREATE = "CREATE TABLE "
@@ -249,7 +253,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(COLUMN_QUESTION, mainQues.getQuestion());
         values.put(COLUMN_TYPE, mainQues.getType());
         values.put(COLUMN_FUNCTION, mainQues.getFunction());
-
+        values.put(COLUMN_GRADE, mainQues.getGrade());
         // Inserting into database
         db.insert(TABLE_ENTRIES, null, values);
         db.close();
@@ -264,6 +268,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(COLUMN_SUBQUESTION, subQuestion.getSubQuestion());
         values.put(COLUMN_SUB_FUNCTION, subQuestion.getFunction());
         values.put(COLUMN_SUB_TYPE, subQuestion.getType());
+        values.put(COLUMN_OPTION_TYPE, subQuestion.getOptionType());
         // Inserting into database
         db.insert(TABLE_NAME, null, values);
         db.close();
@@ -330,7 +335,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_MAIN_ID,
                 COLUMN_QUESTION,
                 COLUMN_TYPE,
-                COLUMN_FUNCTION
+                COLUMN_FUNCTION,
+                COLUMN_GRADE
         }
                 , COLUMN_MAIN_ID + "=?", new String[]{
                 String.valueOf(id)
@@ -344,15 +350,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 Long.parseLong(cursor.getString(0)),    // ID
                 cursor.getString(1),                    // Question
                 cursor.getString(2),                    // Type
-                cursor.getString(3)                    // Function
-
+                cursor.getString(3),                    // Function
+                cursor.getString(4)                     //Grade
         );
 
         db.close();
         return entry;
     }
     //Get list of all Main Questions under a function and bar type
-    public static ArrayList<MainQues> getAllMainQVal( String function, String type) {
+    public static ArrayList<MainQues> getAllMainQVal( String function, String type, String grade) {
         ArrayList<MainQues> mainQuesArrayList = new ArrayList<MainQues>();
 
         SQLiteDatabase db = databaseHandler.getWritableDatabase();
@@ -363,10 +369,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_MAIN_ID,
                 COLUMN_QUESTION,
                 COLUMN_TYPE,
-                COLUMN_FUNCTION
+                COLUMN_FUNCTION,
+                COLUMN_GRADE
         }
-                , COLUMN_TYPE + "=? AND "+ COLUMN_FUNCTION + "=?", new String[]{
-                String.valueOf(type),String.valueOf(function)
+                , COLUMN_TYPE + "=? AND "+ COLUMN_FUNCTION + "=? AND "+ COLUMN_GRADE + "=? ", new String[]{
+                String.valueOf(type),String.valueOf(function), String.valueOf(grade)
         }, null, null, null, null);
 
         // looping through all rows and adding to list
@@ -376,7 +383,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         Integer.parseInt(cursor.getString(0)),    // ID
                         cursor.getString(1),                    // question
                         cursor.getString(2),                    // type
-                        cursor.getString(3)                     // function
+                        cursor.getString(3),                     // function
+                        cursor.getString(4)                     //grade
                 );
                 // Adding contact to list
                 mainQuesArrayList.add(mainQues);
@@ -402,7 +410,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_SUB_ID,
                 COLUMN_SUB_FUNCTION,
                 COLUMN_SUB_TYPE,
-                COLUMN_SUBQUESTION
+                COLUMN_SUBQUESTION,
+                COLUMN_OPTION_TYPE
         }
                 , COLUMN_SUB_ID + "=?", new String[]{
                 String.valueOf(id)
@@ -417,7 +426,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 Long.parseLong(cursor.getString(0)),    // ID
                 cursor.getString(1),                    // Type
                 cursor.getString(2),                    //Function
-                cursor.getString(3)                     //subquestion
+                cursor.getString(3),                     //subquestion
+                cursor.getString(4)                     //Option Type
         );
 
         db.close();
@@ -443,7 +453,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     Long.parseLong(cursor.getString(0)),    // ID
                     cursor.getString(1),                    // Type
                     cursor.getString(2),                    //Function
-                    cursor.getString(3)                     //subquestion
+                    cursor.getString(3),                     //subquestion
+                    cursor.getString(4)                     //Option type
             );
 
             subList.add(entry);
@@ -543,27 +554,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return answerList;
     }
-    //Get the explanation for mainID and sunID
-    public static List<String> getExplanationList(long mainID, long subID) {
+    //Get the explanation for mainID and subId and chosen option
+
+    public static String getOptionExpl(long mainID, long subID, String optionValue) {
         SQLiteDatabase db = databaseHandler.getReadableDatabase();
-        List<String> answerList = new ArrayList<String>();
+        String optionExpl;
 
         // Uses a cursor to query from the database.
         // Provides the strings we want from the query and the query parameters
 
-        String countQuery = "SELECT explanation FROM " + TABLE_OPTION_NAME + " WHERE " + COLUMN_MAINQ_ID + " =? AND " + COLUMN_SUBQ_ID + " =? AND "+COLUMN_ANSWER+" =? ";
-        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID), String.valueOf(subID),"F"});
+        String countQuery = "SELECT explanation FROM " + TABLE_OPTION_NAME + " WHERE " + COLUMN_MAINQ_ID + " =? AND " + COLUMN_SUBQ_ID + " =? AND " + COLUMN_OPTION_VALUE + " =?";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID), String.valueOf(subID), optionValue});
 
         if (cursor != null)
             cursor.moveToFirst();
 
-        for (int i = 0; i < cursor.getCount(); i++) {
-            answerList.add(cursor.getString(0));//answer
-            cursor.moveToNext();
-        }
+        optionExpl = cursor.getString(0);
 
         db.close();
-        return answerList;
+        return optionExpl;
     }
 
     ////////////////////////////////////////////////////////////Heading/////////////////////////////////////////////////////////////////////////////
@@ -825,7 +834,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(COLUMN_SUBQUESTION, entry.getSubQuestion());
         values.put(COLUMN_SUB_TYPE, entry.getType());
         values.put(COLUMN_SUB_FUNCTION, entry.getFunction());
-
+        values.put(COLUMN_OPTION_TYPE, entry.getOptionType());
         // updating row
         int result = db.update(TABLE_NAME, values, COLUMN_SUB_ID + " = ?",
                 new String[]{String.valueOf(entry.getSubQuesId())});

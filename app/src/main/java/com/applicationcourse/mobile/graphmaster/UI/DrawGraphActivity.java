@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
@@ -60,11 +61,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     MainQues currentQ;
     TextView txtQuestion;
     TextView txtSubQues;
-    TextView txtOptions;
     TextView txtExplanation;
-    RadioButton rda, rdb, rdc;
     Button btnNext;
     Button btnSubmit;
+    EditText editTextDyn;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,8 +82,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         List<SubQuestion> subQuestionList;
         List<Options> optionsList;
         List<String> answerList;
-        List<String> explanationList;
-        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line");
+        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line","6");
         subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
         for(MainQues main : mainQuesList){
             mainQuesHeadingList = DatabaseHandler.getHeadingList(main.getMqId());
@@ -96,12 +95,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             main.setMainQuesHeadList(mainQuesHeadingList);
             ///////////////////Now for each main question and subquestion find the options////////////////////////////
             for(SubQuestion subQuestion : subQuestionList){
-                optionsList = DatabaseHandler.getOptionList(main.getMqId(),subQuestion.getSubQuesId());
+                optionsList = DatabaseHandler.getOptionList(main.getMqId(), subQuestion.getSubQuesId());
                 subQuestion.setOptionsList(optionsList);
-                answerList = DatabaseHandler.getAnswerList(main.getMqId(),subQuestion.getSubQuesId());
+                answerList = DatabaseHandler.getAnswerList(main.getMqId(), subQuestion.getSubQuesId());
                 subQuestion.setAnswerList(answerList);
-                explanationList = DatabaseHandler.getExplanationList(main.getMqId(),subQuestion.getSubQuesId());
-                subQuestion.setExplainList(explanationList);
             }
             //set the subquestion
             main.setSubQuestionList(subQuestionList);
@@ -140,15 +137,25 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RadioGroup grp = (RadioGroup) findViewById(R.id.radioSetupSel);
-                RadioButton answer = (RadioButton) findViewById(grp.getCheckedRadioButtonId());
-                String selected = answer.getText().toString();
+                String selected="none";
+                String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
+                if(optionType.equals("Radio")) {
+                    RadioGroup grp = (RadioGroup) findViewById(R.id.radioSetupSel);
+                    RadioButton answer = (RadioButton) findViewById(grp.getCheckedRadioButtonId());
+                    selected = answer.getText().toString();
+                    selected = selected.trim();
+                }else if(optionType.equals("TextBox")) {
+                    selected = editTextDyn.getText().toString();
+                    Toast.makeText(getBaseContext(),selected,Toast.LENGTH_SHORT).show();
+                }
+                String optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId(), selected);
                 if(selected.equals(currentQ.getSubQuestionList().get(subQuesCount).getAnswerList().get(0))){
-                    txtExplanation.setText("Good Job! Correct Answer");
+                    txtExplanation.setText(optionExpl);
                     btnNext.setEnabled(true);
                     btnSubmit.setEnabled(false);
                 }else{
-                    txtExplanation.setText(currentQ.getSubQuestionList().get(subQuesCount).getExplainList().get(0));
+
+                    txtExplanation.setText(optionExpl);
                 }
             }
         });
@@ -156,10 +163,19 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             @Override
             public void onClick(View v) {
                 if(subQuesCount < (currentQ.getSubQuestionList().size()-1)) {
+                    String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
+                    if(optionType.equals("Radio")) {
+                        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioSetupSel);
+                        radioGroup.clearCheck();
+                        radioGroup.removeAllViews();
+                    }else if(optionType.equals("TextBox")){
+                        View editTextRemove = (EditText) findViewById(R.id.edittext_dynamic);
+                        ViewGroup parent = (ViewGroup) editTextRemove.getParent();
+                        if (parent != null) {
+                            parent.removeView(editTextRemove);
+                        }
+                    }
                     ++subQuesCount;
-                    RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioSetupSel);
-                    radioGroup.clearCheck();
-                    radioGroup.removeAllViews();
                     TableLayout tableLayout = (TableLayout)findViewById(R.id.table);
                     tableLayout.removeAllViews();
                     setQuestionView();
@@ -314,7 +330,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         if its 250-300 interpret it as 300 and so on..
          */
         float difference = Math.abs(x - initialVal);
-        int boxAwayFromAxis = Math.round(difference/eachBoxVal);
+        int boxAwayFromAxis = Math.round(difference / eachBoxVal);
         float intepretedVal = (eachBoxVal*boxAwayFromAxis)+initialVal;
         return intepretedVal;
     }
@@ -391,27 +407,34 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     {
         txtQuestion.setText(currentQ.getQuestion());
         txtSubQues.setText(currentQ.getSubQuestionList().get(subQuesCount).getSubQuestion());
-
         //Need to dynamically generate the radio options
-        // txtOptions.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().toString());
-        //rda.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(0).getOptionValue());
-        //rdb.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(1).getOptionValue());
-//        rdc.setText(currentQ.getSubQuestionList().get(qid).getOptionsList().get(2).getOptionValue());
 /////////////////////////////////generate the option buttons//////////////////////////////////////
         List<Options> optionsList = currentQ.getSubQuestionList().get(subQuesCount).getOptionsList();
-        for (Options options : optionsList){
-            RadioButton radioButton = new RadioButton(this);
-            radioButton.setId(0 + i);
-            if(optionCount ==0) {
-                radioButton.setChecked(true);
+        String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
+        if(optionType.equals("Radio")){
+            for (Options options : optionsList) {
+                RadioButton radioButton = new RadioButton(this);
+                radioButton.setId(0 + i);
+                if (optionCount == 0) {
+                    radioButton.setChecked(true);
+                }
+                radioButton.setText(options.getOptionValue());
+                ((ViewGroup) findViewById(R.id.radioSetupSel)).addView(radioButton);
+                i++;
+                optionCount++;
             }
-            radioButton.setText(options.getOptionValue());
-            ((ViewGroup) findViewById(R.id.radioSetupSel)).addView(radioButton);
+            optionCount = 0;
+        }else if(optionType.equals("TextBox")){
+            LinearLayout layoutDynamic=(LinearLayout)findViewById(R.id.layoutDynamic);
+            editTextDyn= new EditText(getApplicationContext());
+            editTextDyn.setId(R.id.edittext_dynamic);
+            layoutDynamic.addView(editTextDyn);
+        }else if(optionType.equals("LabelAxis")){
+            //call the function to add Label
 
-            i++;
-            optionCount++;
+
         }
-        optionCount = 0;
+
         ////////////////////////////////////////generate the table/////////////////////////////////////////
 
         int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
@@ -453,5 +476,76 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
 
         txtExplanation.setText(null);
         btnNext.setEnabled(false);
+    }
+    public void drawXAxisLabel(final float x, final float y, final float xInitial,float yValue){
+        if((x > (xInitial+eachBoxX))&&(y > yValue )&&( y < (yValue + eachBoxY))){
+            //Debug purpose
+            Log.i("Touch pts: ", x + "");
+            Log.i("Touch pts: ", y + "");
+
+            final float usrYPosDisply= (yValue + (yValue)/10 );  //For displaying the entered Label by user at pos lower than the x-axis
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Enter X-axis Label");
+            // Set an EditText view to get user input
+            final EditText input = new EditText(this);
+            alert.setView(input);
+
+            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    String inputVal = input.getText().toString();
+                    paint.setColor(Color.RED);
+                    float positionX = (eachBoxX*(lineDensity/2)) - eachBoxX;//to make it some what in middle
+                    canvas.drawText(inputVal, 0, inputVal.length(), positionX, usrYPosDisply, paint);
+                    dialog.dismiss();
+                    paint.setColor(Color.BLACK);
+                }
+            });
+
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+        }else{
+            Toast.makeText(getBaseContext(),"Plot Below X-Axis",Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void drawYAxisLabel(final float x, final float y, final float yInitial,float xValue){
+        if((y > (yInitial+eachBoxY))&&(x > 0)&&( x < eachBoxX )){
+            //Debug purpose
+            Log.i("Touch pts: ", x + "");
+            Log.i("Touch pts: ", y + "");
+            final float xInitial = eachBoxX;
+            final float usrXPosDisply= (xInitial - (xInitial)/2 );  //For displaying the entered point by user at pos lower than the x-axis
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Enter Y-axis Label");
+            // Set an EditText view to get user input
+            final EditText input = new EditText(this);
+            alert.setView(input);
+
+            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    String inputVal = input.getText().toString();
+                    float positionY = (eachBoxY*(lineDensity / 2)) - eachBoxY;//to make it some what in middle
+                    paint.setColor(Color.RED);
+                    canvas.save();
+                    canvas.rotate(-90, 120, 90);
+                    canvas.drawText(inputVal,-150,0,paint);
+                    canvas.restore();
+                    dialog.dismiss();
+                    paint.setColor(Color.BLACK);
+                }
+            });
+
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+        }else{
+            Toast.makeText(getBaseContext(),"Learn to plot Y-Axis Label. Click near the Y-axis",Toast.LENGTH_SHORT).show();
+        }
     }
 }

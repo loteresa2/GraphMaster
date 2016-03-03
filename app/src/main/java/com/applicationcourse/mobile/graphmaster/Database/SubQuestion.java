@@ -10,23 +10,26 @@ public class SubQuestion {
     private String type;
     private String function;
     private String subQuestion;
+    private String optionType;
     private List<Options> optionsList;
     private List<String> answerList;
     private List<String> explainList;
 
     //get from database
-    public SubQuestion(long id, String type, String function,String subQuestion) {
+    public SubQuestion(long id, String type, String function,String subQuestion, String optionType) {
         this.subQuesId = id;
         this.subQuestion = subQuestion;
         this.type = type;
         this.function = function;
+        this.optionType = optionType;
     }
 
     //save into database
-    public SubQuestion( String type, String function,String subQuestion){
+    public SubQuestion( String type, String function,String subQuestion, String optionType){
         this.subQuestion = subQuestion;
         this.type = type;
         this.function = function;
+        this.optionType = optionType;
     }
 
     //empty constructor
@@ -64,6 +67,14 @@ public class SubQuestion {
 
     public void setSubQuestion(String subQuestion) {
         this.subQuestion = subQuestion;
+    }
+
+    public String getOptionType() {
+        return optionType;
+    }
+
+    public void setOptionType(String optionType) {
+        this.optionType = optionType;
     }
 
     public List<Options> getOptionsList() {

@@ -78,16 +78,19 @@ public class MainActivity extends Activity {
         mainQues.setQuestion("Alice loves to grow rose bushes.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measures the data in the table below.");
         mainQues.setFunction("Create");
         mainQues.setType("Line");
+        mainQues.setGrade("6");
         databaseHandler.addQuestionValue(mainQues);
         //subquestion
         SubQuestion subQuestion = new SubQuestion();
         subQuestion.setFunction("Create");
         subQuestion.setType("Line");
+        subQuestion.setOptionType("Radio");
         subQuestion.setSubQuestion("1.What type of graph should Alice create to show this data?");
         databaseHandler.addSubQValue(subQuestion);
         SubQuestion subQuestion1 = new SubQuestion();
         subQuestion1.setFunction("Create");
         subQuestion1.setType("Line");
+        subQuestion1.setOptionType("Radio");
         subQuestion1.setSubQuestion("2.Now that you’ve decided to create a line graph or scatter plot, you have to decide which variable is the independent and dependent variable.");
         databaseHandler.addSubQValue(subQuestion1);
         //option
@@ -102,7 +105,7 @@ public class MainActivity extends Activity {
         Options value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(1);
-        value1.setOptionValue("Pie graph");
+        value1.setOptionValue("Bar graph");
         value1.setAnswer("F");
         value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Bar graphs are used to graph categories against a set of numbers.  For example, a bar graph would be perfect if you were graphing favourite type of smooth (a category) versus number of people who choose to drink that smoothie at the school fair (numerical data).");
         databaseHandler.addOption(value1);
@@ -110,7 +113,7 @@ public class MainActivity extends Activity {
         value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(1);
-        value1.setOptionValue("Bar graph");
+        value1.setOptionValue("Pie graph");
         value1.setAnswer("F");
         value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Pie graphs are used to graph categories against a set of numbers, when those numbers can be represented as percentages.  For example, a pie graph would be perfect if you were graphing the favourite animal of students in a class.  The animals are a category and the number of students is your numerical data that can be represented as a percentage.   ");
         databaseHandler.addOption(value1);
@@ -136,13 +139,9 @@ public class MainActivity extends Activity {
         subQuestion = new SubQuestion();
         subQuestion.setFunction("Create");
         subQuestion.setType("Line");
+        subQuestion.setOptionType("Radio");
         subQuestion.setSubQuestion("Which axis does the independent variable go on?");
         databaseHandler.addSubQValue(subQuestion);
-        subQuestion1 = new SubQuestion();
-        subQuestion1.setFunction("Create");
-        subQuestion1.setType("Line");
-        subQuestion1.setSubQuestion("What will be in your y-axis ?");
-        databaseHandler.addSubQValue(subQuestion1);
         //option
         value = new Options();
         value.setMqId(1);
@@ -159,21 +158,50 @@ public class MainActivity extends Activity {
         value1.setAnswer("F");
         value1.setExplanation("Incorrect. The x-axis is where the independent variable is located.  The dependent variable goes on the y- axis.");
         databaseHandler.addOption(value1);
-        //option
-        value = new Options();
-        value.setMqId(1);
-        value.setSubQuesId(4);
-        value.setOptionValue("Height");
-        value.setAnswer("T");
-        value.setExplanation("Great Work! Correct Answer!");
-        databaseHandler.addOption(value);
 
+        //subquestion
+        subQuestion = new SubQuestion();
+        subQuestion.setFunction("Create");
+        subQuestion.setType("Line");
+        subQuestion.setOptionType("LabelAxis");
+        subQuestion.setSubQuestion("Place your axes labels on the x and y axes.  Don’t forget to include your units in brackets!");
+        databaseHandler.addSubQValue(subQuestion);
         value1 = new Options();
         value1.setMqId(1);
         value1.setSubQuesId(4);
-        value1.setOptionValue("Water");
-        value1.setAnswer("F");
-        value1.setExplanation("It cannot be this answer because...");
+        value1.setOptionValue("DoneLabel");
+        value1.setAnswer("T");
+        value1.setExplanation("Excellent! Now that you’ve labelled your axes it’s time to create intervals for them.");
+        databaseHandler.addOption(value1);
+
+        //subquestion
+        subQuestion = new SubQuestion();
+        subQuestion.setFunction("Create");
+        subQuestion.setType("Line");
+        subQuestion.setOptionType("TextBox");
+        subQuestion.setSubQuestion("Calculate the interval that you will use for the x axis");
+        databaseHandler.addSubQValue(subQuestion);
+        value1 = new Options();
+        value1.setMqId(1);
+        value1.setSubQuesId(5);
+        value1.setOptionValue("None");
+        value1.setAnswer("T");
+        value1.setExplanation("Testing ");
+        databaseHandler.addOption(value1);
+
+        //subquestion
+        subQuestion = new SubQuestion();
+        subQuestion.setFunction("Create");
+        subQuestion.setType("Line");
+        subQuestion.setOptionType("TextBox");
+        subQuestion.setSubQuestion("Now that you’ve found the interval for the x-axis, let’s find it for the y-axis! 5. Calculate the interval that you will use for the y axis.");
+        databaseHandler.addSubQValue(subQuestion);
+        value1 = new Options();
+        value1.setMqId(1);
+        value1.setSubQuesId(6);
+        value1.setOptionValue("None");
+        value1.setAnswer("T");
+        value1.setExplanation("Testing ");
         databaseHandler.addOption(value1);
 
         //MainQuesHeading

@@ -54,7 +54,7 @@ public class ReadingActivity extends AppCompatActivity {
         List<Options> optionsList;
         List<String> answerList;
         List<String> explanationList;
-        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line");
+        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line","6");
         subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
         for(MainQues main : mainQuesList){
             mainQuesHeadingList = DatabaseHandler.getHeadingList(main.getMqId());
@@ -71,8 +71,6 @@ public class ReadingActivity extends AppCompatActivity {
                 subQuestion.setOptionsList(optionsList);
                 answerList = DatabaseHandler.getAnswerList(main.getMqId(),subQuestion.getSubQuesId());
                 subQuestion.setAnswerList(answerList);
-                explanationList = DatabaseHandler.getExplanationList(main.getMqId(),subQuestion.getSubQuesId());
-                subQuestion.setExplainList(explanationList);
             }
             //set the subquestion
             main.setSubQuestionList(subQuestionList);

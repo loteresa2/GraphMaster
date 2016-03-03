@@ -10,21 +10,24 @@ public class MainQues {
     private String question;
     private String type;
     private String function;
+    private String grade;
     private List<MainQuesHeading> mainQuesHeadList;
     private List<SubQuestion> subQuestionList;
 
     //get value from database
-    public MainQues(long id, String question, String type, String function) {
+    public MainQues(long id, String question, String type, String function, String grade) {
         this.mqId = id;
         this.question = question;
         this.type = type;
         this.function = function;
+        this.grade = grade;
     }
     //save into database
-    public MainQues(String question, String type, String function){
+    public MainQues(String question, String type, String function, String grade){
         this.question = question;
         this.type = type;
         this.function = function;
+        this.grade = grade;
     }
     //empty constructor
     public MainQues(){
@@ -61,6 +64,14 @@ public class MainQues {
 
     public void setFunction(String function) {
         this.function = function;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
     }
 
     public List<MainQuesHeading> getMainQuesHeadList() {
