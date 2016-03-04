@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -293,6 +294,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             alert.setTitle("Enter Point");
             // Set an EditText view to get user input
             final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER| InputType.TYPE_NUMBER_FLAG_DECIMAL);
             alert.setView(input);
 
             alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -360,6 +362,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             alert.setTitle("Enter Point");
             // Set an EditText view to get user input
             final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER| InputType.TYPE_NUMBER_FLAG_DECIMAL);
             alert.setView(input);
 
             alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
