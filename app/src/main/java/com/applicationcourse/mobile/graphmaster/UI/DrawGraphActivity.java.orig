@@ -384,8 +384,12 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             alert.setTitle("Enter Point");
             // Set an EditText view to get user input
             final EditText input = new EditText(this);
+<<<<<<< HEAD
+            input.setInputType(InputType.TYPE_CLASS_NUMBER| InputType.TYPE_NUMBER_FLAG_DECIMAL);
+=======
             input.setInputType(InputType.TYPE_CLASS_NUMBER);
             float xIntepretedVal = interpretXInterval(x, eachBoxX, eachBoxX, 1);
+>>>>>>> 7860078bda2fc6a563d9ebd5a9c25024922645e0
             alert.setView(input);
 
             if (xpointTwice[(int) xIntepretedVal - 1] == 0) {
@@ -487,6 +491,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         int boxAwayFromAxis = (Math.round(difference / eachBoxVal)) * multiple;
         return boxAwayFromAxis;
     }
+<<<<<<< HEAD
     public void drawYAxisPoints(final float x, final float y, final float yInitial,float xValue){
         if((y > yInitial)&&(x > xValue - (xValue)/2 )&&( x < (xValue + (xValue)/2 ))){
             //Debug purpose
@@ -499,7 +504,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             alert.setTitle("Enter Point");
             // Set an EditText view to get user input
             final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER| InputType.TYPE_NUMBER_FLAG_DECIMAL);
             alert.setView(input);
+=======
+>>>>>>> 7860078bda2fc6a563d9ebd5a9c25024922645e0
 
     //if we have finished x axis and y axis has not dinished
     public void drawYAxisPoints(final float x, final float y, final float yInitial, float xValue) {
@@ -688,45 +696,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         } else if (optionType.equals("LabelAxis")) {
             //call the function to add Label
 
-
         }
 
         ////////////////////////////////////////generate the table/////////////////////////////////////////
 
-        int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
-        int colNum = currentQ.getMainQuesHeadList().size();
-        TableLayout tableLayout = (TableLayout)findViewById(R.id.table);
-        //set the header of the table
-        TableRow rowHeader = new TableRow(this);
-        rowHeader.setId(0);
-        rowHeader.setBackgroundColor(Color.GRAY);
-        //rowHeader.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-        for (int x = 1; x<=colNum;x++){
-            TextView headerName = new TextView(this);
-            headerName.setId(0 + i);
-            headerName.setText(currentQ.getMainQuesHeadList().get(x - 1).getHeading());
-            //headerName.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-            headerName.setTextColor(Color.WHITE);
-            headerName.setPadding(5, 5, 5, 5);
-            rowHeader.addView(headerName);
-            i++;
-        }
-        tableLayout.addView(rowHeader);
-        for(int x = 1; x<=rowNum;x++){
-            TableRow tableRow = new TableRow(this);
-            //tableRow.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-            //column
-            int headingNo = 0;
-            for (int y = 1;y<=colNum;y++){
-                TextView textView = new TextView(this);
-                textView.setId(0+i);
-                //textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-                textView.setText(currentQ.getMainQuesHeadList().get(headingNo).getMainQuesHDataList().get(x - 1).getData());
-                headingNo++;
-                tableRow.addView(textView);
-                i++;
-            }
-            tableLayout.addView(tableRow);
 
                  int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
                  int colNum = currentQ.getMainQuesHeadList().size();
@@ -841,6 +814,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             //Toast.makeText(getBaseContext(),"Plot Below X-Axis",Toast.LENGTH_SHORT).show();
         }
     }
+
     public void drawYAxisLabel(final float x, final float y, final float yInitial,float xValue){
         if((y > (yInitial+eachBoxY))&&(x > 0)&&( x < eachBoxX )){
             //Debug purpose
