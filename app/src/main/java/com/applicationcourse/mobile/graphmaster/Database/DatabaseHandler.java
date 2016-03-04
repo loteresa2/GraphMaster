@@ -794,10 +794,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Getting Data Count
-    public int getDataCount() {
+    public static int getDataCount(int MainId) {
         String countQuery = "SELECT * FROM " + TABLE_HDATA_NAME + " WHERE " + COLUMN_MAIND_ID + " =? AND " + COLUMN_HEADINGD_ID + " =? ";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(MainId),"0"});
         cursor.close();
         db.close();
 
