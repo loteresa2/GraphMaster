@@ -341,7 +341,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                     //checky = 0;
                     if(subid ==4){
                         if (checkXLabel==false)
-                        drawXAxisLabel(downx, downy, eachBoxX, (eachBoxY * 9));
+                            drawXAxisLabel(downx, downy, eachBoxX, (eachBoxY * 9));
                         else {
                             if(checkYLabel==false){
                                 drawYAxisLabel(downx, downy, eachBoxY, eachBoxX);
@@ -376,65 +376,65 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             if (checkx != 0){
                 //Debug purpose
                 Log.i("Touch pts: ", x + "");
-            Log.i("Touch pts: ", y + "");
-            Log.i("Variation Y touch ", String.valueOf((yValue) / 20));
+                Log.i("Touch pts: ", y + "");
+                Log.i("Variation Y touch ", String.valueOf((yValue) / 20));
 
-            final float usrYPosDisply = (yValue + (yValue) / 20);  //For displaying the entered point by user at pos lower than the x-axis
-            final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("Enter Point");
-            // Set an EditText view to get user input
-            final EditText input = new EditText(this);
-            input.setInputType(InputType.TYPE_CLASS_NUMBER);
-            float xIntepretedVal = interpretXInterval(x, eachBoxX, eachBoxX, 1);
-            alert.setView(input);
+                final float usrYPosDisply = (yValue + (yValue) / 20);  //For displaying the entered point by user at pos lower than the x-axis
+                final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.setTitle("Enter Point");
+                // Set an EditText view to get user input
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                float xIntepretedVal = interpretXInterval(x, eachBoxX, eachBoxX, 1);
+                alert.setView(input);
 
-            if (xpointTwice[(int) xIntepretedVal - 1] == 0) {
-                alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String inputVal = input.getText().toString();
-                        String correctValue = String.valueOf(interpretXInterval(x, eachBoxX, eachBoxX, 1));
-                        paint.setColor(Color.RED);
-                        float xIntepretedPos = interpretTouchPosition(x, eachBoxX, eachBoxX);
-                        float xIntepretedVal = interpretXInterval(x, eachBoxX, eachBoxX, 1);
-                        Log.i("Intepreted X: ", xIntepretedPos + "");
-                        Log.i("Intepr Val: ", xIntepretedVal + "");
-                        canvas.drawCircle(xIntepretedPos, (eachBoxY * 9), 4, paint);
-                        if (Integer.parseInt(inputVal) != xIntepretedVal) {
-                            Toast.makeText(getBaseContext(), "Wrong input:Correct is: " + xIntepretedVal, Toast.LENGTH_SHORT).show();
-                        } else {
-                            canvas.drawText(correctValue, 0, correctValue.length(), xIntepretedPos, usrYPosDisply, paint);
-                            Toast.makeText(getBaseContext(), "Correct! ", Toast.LENGTH_SHORT).show();
-                            //we decrease the count number of x axis interval
-                            checkx--;
-                            //we set this interval unavailable,in ther words,if we touch this interval again ,a toast will appear and the text will not change
-                            xpointTwice[(int) xIntepretedVal - 1] = 1;
+                if (xpointTwice[(int) xIntepretedVal - 1] == 0) {
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            String inputVal = input.getText().toString();
+                            String correctValue = String.valueOf(interpretXInterval(x, eachBoxX, eachBoxX, 1));
+                            paint.setColor(Color.RED);
+                            float xIntepretedPos = interpretTouchPosition(x, eachBoxX, eachBoxX);
+                            float xIntepretedVal = interpretXInterval(x, eachBoxX, eachBoxX, 1);
+                            Log.i("Intepreted X: ", xIntepretedPos + "");
+                            Log.i("Intepr Val: ", xIntepretedVal + "");
+                            canvas.drawCircle(xIntepretedPos, (eachBoxY * 9), 4, paint);
+                            if (Integer.parseInt(inputVal) != xIntepretedVal) {
+                                Toast.makeText(getBaseContext(), "Wrong input:Correct is: " + xIntepretedVal, Toast.LENGTH_SHORT).show();
+                            } else {
+                                canvas.drawText(correctValue, 0, correctValue.length(), xIntepretedPos, usrYPosDisply, paint);
+                                Toast.makeText(getBaseContext(), "Correct! ", Toast.LENGTH_SHORT).show();
+                                //we decrease the count number of x axis interval
+                                checkx--;
+                                //we set this interval unavailable,in ther words,if we touch this interval again ,a toast will appear and the text will not change
+                                xpointTwice[(int) xIntepretedVal - 1] = 1;
+                            }
+
+                            dialog.dismiss();
+                            paint.setColor(Color.BLACK);
+
                         }
+                    });
 
-                        dialog.dismiss();
-                        paint.setColor(Color.BLACK);
-
-                    }
-                });
-
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                });
-                alert.show();
-            } else {
-                AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
-                alert1.setTitle("You've already set this point !Let's choose other points! ");
-                alert1.setCancelable(false);
-                alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alertDialog = alert1.create();
-                alertDialog.show();
-            }
-        }else{
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                        }
+                    });
+                    alert.show();
+                } else {
+                    AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
+                    alert1.setTitle("You've already set this point !Let's choose other points! ");
+                    alert1.setCancelable(false);
+                    alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alertDialog = alert1.create();
+                    alertDialog.show();
+                }
+            }else{
                 AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
                 alert1.setTitle("Please finish x axis interval first!");
                 alert1.setCancelable(false);
@@ -487,19 +487,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         int boxAwayFromAxis = (Math.round(difference / eachBoxVal)) * multiple;
         return boxAwayFromAxis;
     }
-    public void drawYAxisPoints(final float x, final float y, final float yInitial,float xValue){
-        if((y > yInitial)&&(x > xValue - (xValue)/2 )&&( x < (xValue + (xValue)/2 ))){
-            //Debug purpose
-            Log.i("Touch pts: ", x + "");
-            Log.i("Touch pts: ", y + "");
-            Log.i("Variation X touch ", String.valueOf((eachBoxX) / 2));
-            final float xInitial = eachBoxX;
-            final float usrXPosDisply= (xInitial - (xInitial)/4 );  //For displaying the entered point by user at pos lower than the x-axis
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("Enter Point");
-            // Set an EditText view to get user input
-            final EditText input = new EditText(this);
-            alert.setView(input);
 
     //if we have finished x axis and y axis has not dinished
     public void drawYAxisPoints(final float x, final float y, final float yInitial, float xValue) {
@@ -688,10 +675,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         } else if (optionType.equals("LabelAxis")) {
             //call the function to add Label
 
-
         }
 
         ////////////////////////////////////////generate the table/////////////////////////////////////////
+
 
         int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
         int colNum = currentQ.getMainQuesHeadList().size();
@@ -728,47 +715,12 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             }
             tableLayout.addView(tableRow);
 
-                 int rowNum = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
-                 int colNum = currentQ.getMainQuesHeadList().size();
-                 TableLayout tableLayout = (TableLayout)findViewById(R.id.table);
-                 //set the header of the table
-                 TableRow rowHeader = new TableRow(this);
-                 rowHeader.setId(0);
-                 rowHeader.setBackgroundColor(Color.GRAY);
-                 //rowHeader.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-                 for (int x = 1; x<=colNum;x++){
-                         TextView headerName = new TextView(this);
-                         headerName.setId(0 + i);
-                         headerName.setText(currentQ.getMainQuesHeadList().get(x - 1).getHeading());
-                         //headerName.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-                         headerName.setTextColor(Color.WHITE);
-                         headerName.setPadding(5, 5, 5, 5);
-                         rowHeader.addView(headerName);
-                         i++;
-                     }
-                 tableLayout.addView(rowHeader);
-                 for(int x = 1; x<=rowNum;x++){
-                         TableRow tableRow = new TableRow(this);
-                         //tableRow.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-                         //column
-                         int headingNo = 0;
-                         for (int y = 1;y<=colNum;y++){
-                                 TextView textView = new TextView(this);
-                                 textView.setId(0+i);
-                                 //textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-                                 textView.setText(currentQ.getMainQuesHeadList().get(headingNo).getMainQuesHDataList().get(x - 1).getData());
-                                 headingNo++;
-                                 tableRow.addView(textView);
-                                 i++;
-                             }
-                         tableLayout.addView(tableRow);
+
+        }
 
 
-                     }
-
-
-                 txtExplanation.setText(null);
-                 btnNext.setEnabled(false);
+        txtExplanation.setText(null);
+        btnNext.setEnabled(false);
 
     }
     public void drawXAxisLabel(final float x, final float y, final float xInitial,float yValue){
@@ -841,6 +793,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             //Toast.makeText(getBaseContext(),"Plot Below X-Axis",Toast.LENGTH_SHORT).show();
         }
     }
+
     public void drawYAxisLabel(final float x, final float y, final float yInitial,float xValue){
         if((y > (yInitial+eachBoxY))&&(x > 0)&&( x < eachBoxX )){
             //Debug purpose
