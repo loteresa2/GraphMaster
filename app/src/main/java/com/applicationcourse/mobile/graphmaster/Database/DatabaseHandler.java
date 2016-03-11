@@ -41,7 +41,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_QUESTION = "question";
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_FUNCTION = "function";
-    public static final String COLUMN_GRADE = "grade";
+    public static final String COLUMN_GRADE = "level";
 
     ///////////////////////SubQuestion Table////////////////////////////////////
     public static final String TABLE_NAME = "Subquestion";
@@ -62,8 +62,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     /////////////////////////Heading Table//////////////////////////////////////////
     public static final String TABLE_HEADING_NAME = "heading";
+    public static final String COLUMN_MAINQH_ID = "mainId";
     public static final String COLUMN_HEADING_ID = "headingId";
-    public static final String COLUMN_MAINH_ID = "mainId";
+    public static final String COLUMN_HEADING_AXIS = "headingAxis";
     public static final String COLUMN_HEADING = "heading";
 
     /////////////////////////Table Heading data/////////////////////////////////////////////
@@ -73,7 +74,35 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_ORDER = "ordering";
     public static final String COLUMN_DATA = "data";
 
+    /////////////////////////Table STUDENT data/////////////////////////////////////////////
+    public static final String TABLE_STUDENT_NAME = "student";
+    public static final String COLUMN_STUDENT_ID = "studentId";
+    public static final String COLUMN_STUDENT_NAME = "studentName";
+    public static final String COLUMN_TEACHER_ID = "teacherId";
+    public static final String COLUMN_FUNCTION_TYPE = "functionType";
+    public static final String  COLUMN_LEVEL_REACHED="levelReached";
+    /////////////////////////Table PROGRESS data/////////////////////////////////////////////
+    public static final String TABLE_PROGRESS_NAME = "progress";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_STUD_ID = "studentId";
+    public static final String COLUMN_FUNCT_TYPE = "functionType";
+    public static final String COLUMN_LEVEL = "level";
+    public static final String COLUMN_ATTEMPT_COUNT = "attemptCount";
+    public static final String COLUMN_TIME_TAKEN = "timeTaken";
+    public static final String COLUMN_NUM_WRONG = "no_of_wrong_ans";
     // Database creation sql statement
+
+
+    private static final String DATABASE_STUDENT_CREATE = "CREATE TABLE "
+            + TABLE_STUDENT_NAME
+            + "("
+            + COLUMN_STUDENT_ID + " integer primary key autoincrement,"
+            + COLUMN_STUDENT_NAME + " string not null,"
+            + COLUMN_TEACHER_ID + " integer not null,"
+            + COLUMN_FUNCTION_TYPE + " text not null,"
+            + COLUMN_LEVEL_REACHED + " integer not null"
+            + ");";
+
     private static final String DATABASE_MAIN_CREATE = "CREATE TABLE "
             + TABLE_ENTRIES
             + "("
@@ -108,8 +137,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_HEADING_CREATE = "CREATE TABLE "
             + TABLE_HEADING_NAME
             + "("
+            + COLUMN_MAINQH_ID + " integer not null,"
             + COLUMN_HEADING_ID + " integer primary key autoincrement,"
-            + COLUMN_MAINH_ID + " integer not null,"
+            + COLUMN_HEADING_AXIS + " text not null,"
             + COLUMN_HEADING + " text not null"
             + ");";
 
@@ -121,6 +151,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + COLUMN_ORDER + " integer not null,"
             + COLUMN_DATA + " text not null"
             + ");";
+
+
+    private static final String DATABASE_PROGRESS_CREATE = "CREATE TABLE "
+            + TABLE_PROGRESS_NAME
+            + "("
+            + COLUMN_DATE + " text not null,"
+            + COLUMN_STUD_ID + " integer not null,"
+            + COLUMN_FUNCT_TYPE + " text not null,"
+            + COLUMN_LEVEL + " integer not null,"
+            + COLUMN_ATTEMPT_COUNT + " integer primary key autoincrement,"
+            + COLUMN_TIME_TAKEN +" text not null,"
+            + COLUMN_NUM_WRONG+" integer not null"
+            + ");";
+
+
     ////////////////////////////////////////////////////////////////////////////////
     ///////                 Create the Graph Finish
     ///////////////////////////////////////////////////////////////////////////////
@@ -170,12 +215,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_OPTION_NAME);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_HEADING_NAME);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_HDATA_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_PROGRESS_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_STUDENT_NAME);
 
         database.execSQL(DATABASE_MAIN_CREATE);
         database.execSQL(DATABASE_SUB_CREATE);
         database.execSQL(DATABASE_OPTION_CREATE);
         database.execSQL(DATABASE_HEADING_CREATE);
         database.execSQL(DATABASE_DATA_CREATE);
+        database.execSQL(DATABASE_PROGRESS_CREATE);
+        database.execSQL(DATABASE_STUDENT_CREATE);
+
+        String insert1 = "INSERT INTO "+TABLE_PROGRESS_NAME+" ("+COLUMN_DATE+","+COLUMN_STUD_ID+","+COLUMN_FUNCT_TYPE+","+COLUMN_LEVEL+","+COLUMN_TIME_TAKEN+","+COLUMN_NUM_WRONG+") VALUES ('4/3/2016','1','create','1','00:02:00','0')";
+        database.execSQL(insert1);
+        database.execSQL(insert1);
+        //String insert2 = "INSERT INTO "+TABLE_PROGRESS_NAME+" ("+COLUMN_DATE+","+COLUMN_STUD_ID+","+COLUMN_FUNCT_TYPE+","+COLUMN_LEVEL+","+COLUMN_TIME_TAKEN+","+COLUMN_NUM_WRONG+") VALUES ('4/3/2016','1','create','1','3','4')";
+        //database.execSQL(insert2);
     }
 
     @Override
@@ -298,9 +353,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_MAINH_ID, heading.getMqId());
+        values.put(COLUMN_MAINQH_ID, heading.getMqId());
+        values.put(COLUMN_HEADING_AXIS, heading.getAxis());
         values.put(COLUMN_HEADING, heading.getHeading());
-
         // Inserting into database
         db.insert(TABLE_HEADING_NAME, null, values);
         db.close();
@@ -320,6 +375,72 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Inserting into database
         db.insert(TABLE_HDATA_NAME, null, values);
         db.close();
+    }
+    //Add STUDENT data into database
+    public void addStudentData(Student student) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STUDENT_ID, student.getStudId());
+        values.put(COLUMN_STUDENT_NAME, student.getName());
+        values.put(COLUMN_TEACHER_ID, student.getTeachId());
+        values.put(COLUMN_FUNCTION_TYPE, student.getFunctType());
+        values.put(COLUMN_LEVEL_REACHED, student.getLevelReached());
+
+        // Inserting into database
+        db.insert(TABLE_STUDENT_NAME, null, values);
+        db.close();
+    }
+
+    //Add PROGRESS data into database
+    public static void addProgressData(Progress progress) {
+        SQLiteDatabase db = databaseHandler.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DATE, progress.getDateTime());
+        values.put(COLUMN_STUD_ID, progress.getStudId());
+        values.put(COLUMN_FUNCT_TYPE, progress.getFuncType());
+        values.put(COLUMN_LEVEL, progress.getLevel());
+        values.put(COLUMN_TIME_TAKEN, progress.getTimeTaken());
+        values.put(COLUMN_NUM_WRONG, progress.getNo_wrong_ans());
+
+        // Inserting into database
+        db.insert(TABLE_PROGRESS_NAME, null, values);
+        db.close();
+    }
+
+    public static List<Progress> getAllProgress(){
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<Progress> dataList = new ArrayList<Progress>();;
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+
+        String countQuery = "SELECT * FROM " + TABLE_PROGRESS_NAME;
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            Progress entry = new Progress(
+                    (cursor.getString(0)),    // Time
+                    Integer.parseInt(cursor.getString(1)),    //StudentID
+                    (cursor.getString(2)),    // funcType
+                    Integer.parseInt(cursor.getString(3)), //Level
+                    Integer.parseInt(cursor.getString(4)), //attemptcount
+                    cursor.getString(5),//Time taken
+                    Integer.parseInt(cursor.getString(6))//No of wrong
+
+            );
+
+
+            dataList.add(entry);
+            cursor.moveToNext();
+        }
+
+        db.close();
+        return dataList;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +479,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return entry;
     }
     //Get list of all Main Questions under a function and bar type
-    public static ArrayList<MainQues> getAllMainQVal( String function, String type, String grade) {
+    public static ArrayList<MainQues> getAllMainQVal( String function, String type, int grade) {
         ArrayList<MainQues> mainQuesArrayList = new ArrayList<MainQues>();
 
         SQLiteDatabase db = databaseHandler.getWritableDatabase();
@@ -577,63 +698,85 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     ////////////////////////////////////////////////////////////Heading/////////////////////////////////////////////////////////////////////////////
     //Get single heading row value from db
-    public MainQuesHeading getHeading(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Uses a cursor to query from the database.
-        // Provides the strings we want from the query and the query parameters
-        Cursor cursor = db.query(TABLE_HEADING_NAME, new String[]{
-                COLUMN_HEADING_ID,
-                COLUMN_MAINH_ID,
-                COLUMN_HEADING
-        }
-                , COLUMN_HEADING_ID + "=?", new String[]{
-                String.valueOf(id)
-        }
-                , null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        MainQuesHeading entry = new MainQuesHeading(
-                Long.parseLong(cursor.getString(0)),    // HeadingID
-                Long.parseLong(cursor.getString(1)),    //MainID
-                cursor.getString(2)                    // Heading
-        );
-
-        db.close();
-        return entry;
-    }
-
-    //Get the Heading list for specific mainID
-    public static List<MainQuesHeading> getHeadingList(long mainID) {
+    public static List<MainQuesHeading> getHeadingList(long mainQid) {
         SQLiteDatabase db = databaseHandler.getReadableDatabase();
-        List<MainQuesHeading> headingList = new ArrayList<MainQuesHeading>();;
-
+        List<MainQuesHeading> headingList = new ArrayList<MainQuesHeading>();
         // Uses a cursor to query from the database.
         // Provides the strings we want from the query and the query parameters
-
-        String countQuery = "SELECT * FROM " + TABLE_HEADING_NAME + " WHERE " + COLUMN_MAINH_ID + " =? ";
-        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainID)});
+        String countQuery = "SELECT * FROM " + TABLE_HEADING_NAME + " WHERE " + COLUMN_MAINQH_ID + " =? ";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainQid)});
 
         if (cursor != null)
             cursor.moveToFirst();
 
         for (int i = 0; i < cursor.getCount(); i++) {
             MainQuesHeading entry = new MainQuesHeading(
-                    Long.parseLong(cursor.getString(0)),    // HeadingID
-                    Long.parseLong(cursor.getString(1)),    //MainID
-                    cursor.getString(2)                    // Heading
+                    Long.parseLong(cursor.getString(0)),//mainId
+                    Long.parseLong(cursor.getString(1)),//headingId
+                    cursor.getString(2),             // Axis
+                    cursor.getString(3)             // Heading
             );
-
             headingList.add(entry);
             cursor.moveToNext();
         }
-
         db.close();
         return headingList;
     }
 
+    //Get single heading value for an axis
+    public static String getHeadingName(long mainQid, String axis) {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<MainQuesHeading> headingList = new ArrayList<MainQuesHeading>();
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+        String countQuery = "SELECT "+COLUMN_HEADING+" FROM " + TABLE_HEADING_NAME + " WHERE " + COLUMN_MAINQH_ID
+                + " =? AND "+COLUMN_HEADING_AXIS+" =? ";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(mainQid), axis});
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        String headingName = cursor.getString(0);
+        db.close();
+        return headingName;
+    }
+
     //////////////////////////////////////////Table Data/////////////////////////////////////////////////////////
+    //Check if the x, y value touched within the axis is present in the heading data table
+    public static List<HeadingData> getAllHeadingData(int mainId ){
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<HeadingData> pList = new ArrayList<HeadingData>();
+        String query;
+        //GETS THE VALUES ONLY FOR X AXIS FOR A PARTICULAR QUESTION
+        query = "SELECT "+COLUMN_DATA+" FROM "+TABLE_HDATA_NAME+" d INNER JOIN "+TABLE_HEADING_NAME
+                +" h ON ( h."+COLUMN_MAINQH_ID+" = d." +COLUMN_MAIND_ID
+                +" AND h."+COLUMN_HEADINGD_ID+" = d."+COLUMN_HEADING_ID+" ) WHERE h."+COLUMN_MAIND_ID+" =? AND h."+COLUMN_HEADING_AXIS+"= 'x' ORDER BY d."+COLUMN_ORDER;
+
+        Cursor cursor = db.rawQuery( query, new String[]{String.valueOf(mainId) });
+        if(cursor != null)
+            cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            HeadingData p = new HeadingData();
+            p.x = Integer.parseInt(cursor.getString(0));
+            pList.add(p);
+            cursor.moveToNext();
+        }
+        //GETS THE VALUES ONLY FOR Y AXIS FOR A PARTICULAR QUESTION
+        query = "SELECT "+COLUMN_DATA+" FROM "+TABLE_HDATA_NAME+" d INNER JOIN "+TABLE_HEADING_NAME
+                +" h ON (h."+COLUMN_MAINQH_ID+" = d." +COLUMN_MAIND_ID
+                +" AND h."+COLUMN_HEADINGD_ID+" = d."+COLUMN_HEADING_ID+" ) WHERE h."+COLUMN_MAIND_ID+" =? AND h."+COLUMN_HEADING_AXIS+"= 'y' ORDER BY d."+COLUMN_ORDER;
+
+        cursor = db.rawQuery( query, new String[]{String.valueOf(mainId) });
+        if(cursor != null)
+            cursor.moveToFirst();
+        int j = 0;
+        for (int i = 0; i < cursor.getCount(); i++) {
+            HeadingData p = pList.get(j++);
+            p.y = Integer.parseInt(cursor.getString(0));
+            cursor.moveToNext();
+        }
+        return pList;
+    }
     //Get single Data row value from db
     public MainQuesHData getHData(int order) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -694,6 +837,84 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return dataList;
     }
+    //Get single Data row value from db
+    public Student getStudData() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+        Cursor cursor = db.query(TABLE_STUDENT_NAME, new String[]{
+                COLUMN_STUDENT_ID,
+                COLUMN_STUDENT_NAME,
+                COLUMN_TEACHER_ID,
+                COLUMN_FUNCTION_TYPE,
+                COLUMN_LEVEL_REACHED
+        }
+                , null
+                , null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        Student entry = new Student(
+                Integer.parseInt(cursor.getString(0)),    // studId
+                (cursor.getString(1)),                  //studName
+                Integer.parseInt(cursor.getString(2)),    // teachId
+                cursor.getString(3),                  // FuncType
+                Integer.parseInt(cursor.getString(4))  //Level Reached
+        );
+
+        db.close();
+        return entry;
+    }
+
+    //Get Progress Data row value from db
+    public static String getProgressResult(int studId,String function, int level,String timeTaken,String timeThreshold) {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+        //IF student finishes fast and no mistake
+        Cursor cursor;
+        String countQuery;
+        int noOfWrong;
+        //TODO: count the number of attempt for each function: if count > 2 then only do below
+
+        countQuery = "SELECT * FROM "+TABLE_PROGRESS_NAME+" WHERE "+COLUMN_LEVEL+" =?";
+        cursor = db.rawQuery(countQuery,null);
+        if(cursor.getCount() > 1) {
+            if (timeTaken.compareTo(timeThreshold) < 0) {
+                countQuery = "SELECT SUM( A." + COLUMN_NUM_WRONG + ") FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
+                        + " WHERE " + COLUMN_STUD_ID + " =? AND "
+                        + COLUMN_FUNCT_TYPE + " =? AND " + COLUMN_LEVEL + " =? " +
+                        " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 2 ) A WHERE A." + COLUMN_TIME_TAKEN + " <= ?  GROUP BY A." + COLUMN_LEVEL;
+                cursor = db.rawQuery(countQuery, new String[]{String.valueOf(studId), function, String.valueOf(level), timeThreshold});
+                if (cursor != null)
+                    cursor.moveToFirst();
+                noOfWrong = Integer.parseInt(cursor.getString(0));
+                if (noOfWrong == 0) {
+                    db.close();
+                    return "promoteLevel";
+                }
+            }
+            //If slow and no mistake it will return 0, else return no of mistake
+            countQuery = "SELECT SUM(" + COLUMN_NUM_WRONG + ") FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
+                    + " WHERE " + COLUMN_STUD_ID + " =? AND "
+                    + COLUMN_FUNCT_TYPE + " =? AND " + COLUMN_LEVEL + " =? " +
+                    " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 2 ) WHERE " + COLUMN_TIME_TAKEN + " > ?  GROUP BY " + COLUMN_LEVEL;
+            cursor = db.rawQuery(countQuery, new String[]{String.valueOf(studId), function, String.valueOf(level), timeThreshold});
+            if (cursor.getCount() > 0) {
+                if (cursor != null)
+                    cursor.moveToFirst();
+                noOfWrong = Integer.parseInt(cursor.getString(0));
+                db.close();
+                if (noOfWrong == 0) {
+                    return "nextLevel";
+                }
+            }
+        }
+            return "repeatLevel";
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Getting All Options
@@ -783,7 +1004,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Getting Heading Count
     public int getHeadingCount() {
-        String countQuery = "SELECT * FROM " + TABLE_HEADING_NAME + " WHERE " + COLUMN_MAINH_ID + " =? ";
+        String countQuery = "SELECT * FROM " + TABLE_HEADING_NAME + " WHERE " + COLUMN_MAINQH_ID + " =? ";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         cursor.close();
@@ -867,12 +1088,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_MAINH_ID, entry.getMqId());
+        values.put(COLUMN_MAINQH_ID, entry.getMqId());
         values.put(COLUMN_HEADING, entry.getHeading());
 
         // updating row
-        int result = db.update(TABLE_HEADING_NAME, values, COLUMN_HEADING_ID + " = ?",
-                new String[]{String.valueOf(entry.gethId())});
+        int result = db.update(TABLE_HEADING_NAME, values, COLUMN_HEADING_AXIS + " = ?",
+                new String[]{String.valueOf(entry.getMqId())});
 
         db.close();
         return result;
@@ -905,7 +1126,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 new String[]{String.valueOf(entry.getMqId())});
         //IF WE DELETE A MAIN QUESTION ,WE DO NOT NEED TO DELETE THE SUBQUESTION
         db.delete(TABLE_OPTION_NAME, COLUMN_MAINQ_ID + " = ? ", new String[]{String.valueOf(entry.getMqId())});
-        db.delete(TABLE_HEADING_NAME, COLUMN_MAINH_ID + " = ? ", new String[]{String.valueOf(entry.getMqId())});
+        db.delete(TABLE_HEADING_NAME, COLUMN_MAINQH_ID + " = ? ", new String[]{String.valueOf(entry.getMqId())});
         db.delete(TABLE_HDATA_NAME, COLUMN_MAIND_ID + " = ? ", new String[]{String.valueOf(entry.getMqId())});
         db.close();
     }

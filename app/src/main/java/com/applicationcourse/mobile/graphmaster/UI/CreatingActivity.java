@@ -26,10 +26,9 @@ import com.applicationcourse.mobile.graphmaster.R;
 
 import java.util.List;
 //Pending -- needs to implement multiple correct answers
-public class ReadingActivity extends AppCompatActivity {
+public class CreatingActivity extends AppCompatActivity {
 
     List<MainQues> mainQuesList;
-    int score=0;
     int qid=0;
     int i = 1;
     int subQuesCount=0;
@@ -37,71 +36,23 @@ public class ReadingActivity extends AppCompatActivity {
     MainQues currentQ;
     TextView txtQuestion;
     TextView txtSubQues;
-    TextView txtOptions;
     TextView txtExplanation;
-    RadioButton rda, rdb, rdc;
     Button btnNext;
     Button btnSubmit;
+    List<MainQuesHeading> mainQuesHeadingList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reading);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        List<MainQuesHeading> mainQuesHeadingList;
-        List<MainQuesHData> mainQuesHDataList;
-        List<SubQuestion> subQuestionList;
-        List<Options> optionsList;
-        List<String> answerList;
-        List<String> explanationList;
-        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line","6");
-        subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
-        for(MainQues main : mainQuesList){
-            mainQuesHeadingList = DatabaseHandler.getHeadingList(main.getMqId());
-            //prepare the main question heading and options
-            for(MainQuesHeading heading: mainQuesHeadingList) {
-                mainQuesHDataList = DatabaseHandler.getHDataList(heading.getMqId(), heading.gethId());
-                heading.setMainQuesHDataList(mainQuesHDataList);
-            }
-            //set the heading list with the data to main question
-            main.setMainQuesHeadList(mainQuesHeadingList);
-            ///////////////////Now for each main question and subquestion find the options////////////////////////////
-            for(SubQuestion subQuestion : subQuestionList){
-                optionsList = DatabaseHandler.getOptionList(main.getMqId(),subQuestion.getSubQuesId());
-                subQuestion.setOptionsList(optionsList);
-                answerList = DatabaseHandler.getAnswerList(main.getMqId(),subQuestion.getSubQuesId());
-                subQuestion.setAnswerList(answerList);
-            }
-            //set the subquestion
-            main.setSubQuestionList(subQuestionList);
-        }
+
         txtQuestion=(TextView)findViewById(R.id.txtMainQues);
         txtSubQues=(TextView)findViewById(R.id.txtSubQues);
-       // txtOptions=(TextView)findViewById(R.id.txtOptions);
-
         txtExplanation=(TextView)findViewById(R.id.txtExpl);
         btnNext=(Button)findViewById(R.id.btnNext);
         btnSubmit = (Button)findViewById(R.id.btnSubmit);
 
-        //For Logging purpose, will remove it later.
-        for(MainQues mainQues : mainQuesList){
-            Log.i("Main Question : ", mainQues.getQuestion());
-            for(MainQuesHeading mainQuesHeading: mainQues.getMainQuesHeadList()){
-                Log.i("Main Heading : ",mainQuesHeading.getHeading());
-                for(MainQuesHData mainQuesHData: mainQuesHeading.getMainQuesHDataList()){
-                    Log.i("HData Order: ",mainQuesHData.getOrdering()+"");
-                    Log.i("Main HData: ",mainQuesHData.getData());
-                }
-            }
-            for(SubQuestion subQuestion: mainQues.getSubQuestionList()) {
-                Log.i("Sub Question : ", subQuestion.getSubQuestion());
-                for (Options options : subQuestion.getOptionsList()) {
-                    if ((options.getMqId() == mainQues.getMqId()) && (options.getSubQuesId() == subQuestion.getSubQuesId())) {
-                        Log.i("Options : ", options.getOptionValue());
-                    }
-                }
-            }
-        }
         //To generate view for each main question
         //qid will keep track of current main question, subQuesCount will keep track of current subquestion
         currentQ= mainQuesList.get(qid);
@@ -147,11 +98,6 @@ public class ReadingActivity extends AppCompatActivity {
         txtQuestion.setText(currentQ.getQuestion());
         txtSubQues.setText(currentQ.getSubQuestionList().get(subQuesCount).getSubQuestion());
 
-        //Need to dynamically generate the radio options
-        // txtOptions.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().toString());
-        //rda.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(0).getOptionValue());
-        //rdb.setText(currentQ.getSubQuestionList().get(subQuesCount).getOptionsList().get(1).getOptionValue());
-//        rdc.setText(currentQ.getSubQuestionList().get(qid).getOptionsList().get(2).getOptionValue());
 /////////////////////////////////generate the option buttons//////////////////////////////////////
         List<Options> optionsList = currentQ.getSubQuestionList().get(subQuesCount).getOptionsList();
         for (Options options : optionsList){
@@ -208,5 +154,52 @@ public class ReadingActivity extends AppCompatActivity {
 
         txtExplanation.setText(null);
         btnNext.setEnabled(false);
+    }
+    public void getQuestions(){
+        List<MainQuesHData> mainQuesHDataList;
+        List<SubQuestion> subQuestionList;
+        List<Options> optionsList;
+        List<String> answerList;
+        List<String> explanationList;
+        mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line", 6);
+        subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
+        for(MainQues main : mainQuesList){
+            mainQuesHeadingList = DatabaseHandler.getHeadingList(main.getMqId());
+            //prepare the main question heading and options
+            for(MainQuesHeading heading: mainQuesHeadingList) {
+                mainQuesHDataList = DatabaseHandler.getHDataList(heading.getMqId(), heading.gethId());
+                heading.setMainQuesHDataList(mainQuesHDataList);
+            }
+            //set the heading list with the data to main question
+            main.setMainQuesHeadList(mainQuesHeadingList);
+            ///////////////////Now for each main question and subquestion find the options////////////////////////////
+            for(SubQuestion subQuestion : subQuestionList){
+                optionsList = DatabaseHandler.getOptionList(main.getMqId(),subQuestion.getSubQuesId());
+                subQuestion.setOptionsList(optionsList);
+                answerList = DatabaseHandler.getAnswerList(main.getMqId(),subQuestion.getSubQuesId());
+                subQuestion.setAnswerList(answerList);
+            }
+            //set the subquestion
+            main.setSubQuestionList(subQuestionList);
+            //For Logging purpose, will remove it later.
+            for(MainQues mainQues : mainQuesList){
+                Log.i("Main Question : ", mainQues.getQuestion());
+                for(MainQuesHeading mainQuesHeading: mainQues.getMainQuesHeadList()){
+                    Log.i("Main Heading : ",mainQuesHeading.getHeading());
+                    for(MainQuesHData mainQuesHData: mainQuesHeading.getMainQuesHDataList()){
+                        Log.i("HData Order: ",mainQuesHData.getOrdering()+"");
+                        Log.i("Main HData: ",mainQuesHData.getData());
+                    }
+                }
+                for(SubQuestion subQuestion: mainQues.getSubQuestionList()) {
+                    Log.i("Sub Question : ", subQuestion.getSubQuestion());
+                    for (Options options : subQuestion.getOptionsList()) {
+                        if ((options.getMqId() == mainQues.getMqId()) && (options.getSubQuesId() == subQuestion.getSubQuesId())) {
+                            Log.i("Options : ", options.getOptionValue());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

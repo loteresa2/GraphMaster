@@ -157,7 +157,7 @@ public class MainActivity1 extends DemoBase implements OnChartValueSelectedListe
 
     @Override
     public void onEntryMoved(Entry entry) {
-        Log.i(Chart.LOG_TAG, "Point moved " + entry.toString());
+        Log.i(Chart.LOG_TAG, "HeadingData moved " + entry.toString());
     }
 }
         */
