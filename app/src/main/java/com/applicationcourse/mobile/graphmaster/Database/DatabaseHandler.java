@@ -757,7 +757,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
             HeadingData p = new HeadingData();
-            p.x = Integer.parseInt(cursor.getString(0));
+            p.x = Float.parseFloat(cursor.getString(0));
             pList.add(p);
             cursor.moveToNext();
         }
@@ -772,7 +772,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         int j = 0;
         for (int i = 0; i < cursor.getCount(); i++) {
             HeadingData p = pList.get(j++);
-            p.y = Integer.parseInt(cursor.getString(0));
+            p.y = Float.parseFloat(cursor.getString(0));
             cursor.moveToNext();
         }
         return pList;
@@ -912,7 +912,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 }
             }
         }
-            return "repeatLevel";
+        return "repeatLevel";
     }
 
 

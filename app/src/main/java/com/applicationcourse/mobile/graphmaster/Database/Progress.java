@@ -20,7 +20,7 @@ public class Progress {
         this.timeTaken = timeTaken;
         this.no_wrong_ans = no_wrong_ans;
     }
-    public Progress(String dateTime, int studId, String funcType, int level,int attempCount, String timeTaken, int no_wrong_ans) {
+    public Progress(String dateTime, int studId, String funcType, int level, int attempCount, String timeTaken, int no_wrong_ans) {
         this.dateTime = dateTime;
         this.studId = studId;
         this.funcType = funcType;

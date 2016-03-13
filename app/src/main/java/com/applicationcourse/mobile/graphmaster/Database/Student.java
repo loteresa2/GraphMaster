@@ -10,7 +10,7 @@ public class Student {
     String functType;
     int levelReached;
 
-    public Student(int studId, String name, int teachId, String functType, int levelReached ) {
+    public Student(int studId, String name, int teachId, String functType, int levelReached) {
         this.studId = studId;
         this.levelReached = levelReached;
         this.name = name;

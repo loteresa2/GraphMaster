@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
         mainQues.setQuestion("Alice loves to grow rose bushes.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measures the data in the table below.");
         mainQues.setFunction("Create");
         mainQues.setType("Line");
-        mainQues.setGrade("6");
+        mainQues.setGrade("1");
         databaseHandler.addQuestionValue(mainQues);
         //subquestion
         SubQuestion subQuestion = new SubQuestion();
@@ -255,7 +255,7 @@ public class MainActivity extends Activity {
         //MainQuesHeading
         MainQuesHeading heading = new MainQuesHeading();
         heading.setMqId(1);
-        heading.setHeading("A");
+        heading.setHeading("Water");
         heading.setAxis("x");
         databaseHandler.addHeading(heading);
 
@@ -270,13 +270,13 @@ public class MainActivity extends Activity {
         data.setMqId(1);
         data.sethId(1);
         data.setOrdering(1);
-        data.setData("1");
+        data.setData("1.1");
         databaseHandler.addHData(data);
 
         MainQuesHData data1 = new MainQuesHData();
         data1.setMqId(1);
         data1.sethId(1);
-        data1.setData("2");
+        data1.setData("1.6");
         data1.setOrdering(2);
         databaseHandler.addHData(data1);
 
@@ -311,7 +311,7 @@ public class MainActivity extends Activity {
         MainQuesHData data4 = new MainQuesHData();
         data4.setMqId(1);
         data4.sethId(2);
-        data4.setData("1");
+        data4.setData("1.2");
         data4.setOrdering(1);
         databaseHandler.addHData(data4);
 
@@ -353,15 +353,15 @@ public class MainActivity extends Activity {
         //Main Question 2
 
         //Main Question
-         mainQues = new MainQues();
+        mainQues = new MainQues();
         mainQues.setQuestion("Britany loves to water plants.  She is trying to find out what amount of water would help her rose bushes grow the tallest.  She conducts an experiment and measures the data in the table below.");
         mainQues.setFunction("Create");
         mainQues.setType("Line");
-        mainQues.setGrade("6");
+        mainQues.setGrade("1");
         databaseHandler.addQuestionValue(mainQues);
 
         //option
-         value = new Options();
+        value = new Options();
         value.setMqId(2);
         value.setSubQuesId(1);
         value.setOptionValue("Line graph or scatter plot");
@@ -476,20 +476,20 @@ public class MainActivity extends Activity {
         value1.setExplanation("Testing ");
         databaseHandler.addOption(value1);
         //MainQuesHeading
-         heading = new MainQuesHeading();
+        heading = new MainQuesHeading();
         heading.setMqId(2);
         heading.setHeading("A");
         heading.setAxis("x");
         databaseHandler.addHeading(heading);
 
-         heading1 = new MainQuesHeading();
+        heading1 = new MainQuesHeading();
         heading1.setMqId(2);
         heading1.setHeading("B");
         heading1.setAxis("y");
         databaseHandler.addHeading(heading1);
 
         //Table Data. Remember to change the heading id when adding new heading data to correspoond to tht headingid
-         data = new MainQuesHData();
+        data = new MainQuesHData();
         data.setMqId(2);
         data.sethId(3);
         data.setOrdering(1);
@@ -503,14 +503,14 @@ public class MainActivity extends Activity {
         data1.setOrdering(2);
         databaseHandler.addHData(data1);
 
-         data2 = new MainQuesHData();
+        data2 = new MainQuesHData();
         data2.setMqId(2);
         data2.sethId(3);
         data2.setData("30");
         data2.setOrdering(3);
         databaseHandler.addHData(data2);
 
-         data3 = new MainQuesHData();
+        data3 = new MainQuesHData();
         data3.setMqId(2);
         data3.sethId(3);
         data3.setData("40");
@@ -531,28 +531,28 @@ public class MainActivity extends Activity {
         data3.setOrdering(6);
         databaseHandler.addHData(data3);
 
-         data4 = new MainQuesHData();
+        data4 = new MainQuesHData();
         data4.setMqId(2);
         data4.sethId(4);
         data4.setData("100");
         data4.setOrdering(1);
         databaseHandler.addHData(data4);
 
-         data5 = new MainQuesHData();
+        data5 = new MainQuesHData();
         data5.setMqId(2);
         data5.sethId(4);
         data5.setData("200");
         data5.setOrdering(2);
         databaseHandler.addHData(data5);
 
-         data6 = new MainQuesHData();
+        data6 = new MainQuesHData();
         data6.setMqId(2);
         data6.sethId(4);
         data6.setData("300");
         data6.setOrdering(3);
         databaseHandler.addHData(data6);
 
-         data7 = new MainQuesHData();
+        data7 = new MainQuesHData();
         data7.setMqId(2);
         data7.sethId(4);
         data7.setData("400");

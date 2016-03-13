@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UI.CreatingActivity"
+            android:name=".UI.ReadingActivity"
             android:label="@string/title_activity_reading"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -29,14 +29,7 @@
         <activity
             android:name=".UI.DrawGraphActivity"
             android:label="@string/title_activity_draw_graph"
-            android:windowSoftInputMode="adjustPan|adjustResize"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".UI.InformationActivity"
-            android:label="@string/title_activity_information"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
