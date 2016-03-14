@@ -17,6 +17,8 @@ import com.applicationcourse.mobile.graphmaster.Database.Options;
 import com.applicationcourse.mobile.graphmaster.Database.SubQuestion;
 import com.applicationcourse.mobile.graphmaster.R;
 
+import java.util.List;
+
 /**
  * Created by teresa on 15/02/16.
  */
@@ -31,9 +33,9 @@ public class MainActivity extends Activity {
         //initialization
         databaseHandler = DatabaseHandler.getHandler(mContext);
         DatabaseHandler.deleteDatabase();
-        Button btnRead = (Button) findViewById(R.id.btnRead);
-        Button btnCreate = (Button) findViewById(R.id.btnCreate);
-        Button btnOwn = (Button) findViewById(R.id.btnOwn);
+        Button btnRead = (Button) findViewById(R.id.btnLevel2);
+        Button btnCreate = (Button) findViewById(R.id.btnLevel1);
+        Button btnOwn = (Button) findViewById(R.id.btnLevel3);
         Button LoadDB = (Button)findViewById(R.id.btnLoadDB);
         LoadDB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,7 +46,7 @@ public class MainActivity extends Activity {
         btnRead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Not yet implemented!",Toast.LENGTH_SHORT).show();
+              List<MainQues> list = DatabaseHandler.getAllMainQVal("Create", "Line", 1);
             }
         });
 
@@ -255,7 +257,7 @@ public class MainActivity extends Activity {
         //MainQuesHeading
         MainQuesHeading heading = new MainQuesHeading();
         heading.setMqId(1);
-        heading.setHeading("Water");
+        heading.setHeading("A");
         heading.setAxis("x");
         databaseHandler.addHeading(heading);
 
@@ -276,7 +278,7 @@ public class MainActivity extends Activity {
         MainQuesHData data1 = new MainQuesHData();
         data1.setMqId(1);
         data1.sethId(1);
-        data1.setData("1.6");
+        data1.setData("2");
         data1.setOrdering(2);
         databaseHandler.addHData(data1);
 
@@ -372,7 +374,7 @@ public class MainActivity extends Activity {
         value1 = new Options();
         value1.setMqId(2);
         value1.setSubQuesId(1);
-        value1.setOptionValue("Bar graph");
+        value1.setOptionValue("Test1");
         value1.setAnswer("F");
         value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Bar graphs are used to graph categories against a set of numbers.  For example, a bar graph would be perfect if you were graphing favourite type of smooth (a category) versus number of people who choose to drink that smoothie at the school fair (numerical data).");
         databaseHandler.addOption(value1);
@@ -380,7 +382,7 @@ public class MainActivity extends Activity {
         value1 = new Options();
         value1.setMqId(2);
         value1.setSubQuesId(1);
-        value1.setOptionValue("Pie graph");
+        value1.setOptionValue("T");
         value1.setAnswer("F");
         value1.setExplanation("Oops.  When graphing two sets of numerical data (amount of water versus height of plant) we use a line graph or scatter plot.  Pie graphs are used to graph categories against a set of numbers, when those numbers can be represented as percentages.  For example, a pie graph would be perfect if you were graphing the favourite animal of students in a class.  The animals are a category and the number of students is your numerical data that can be represented as a percentage.   ");
         databaseHandler.addOption(value1);
@@ -478,13 +480,13 @@ public class MainActivity extends Activity {
         //MainQuesHeading
         heading = new MainQuesHeading();
         heading.setMqId(2);
-        heading.setHeading("A");
+        heading.setHeading("AA");
         heading.setAxis("x");
         databaseHandler.addHeading(heading);
 
         heading1 = new MainQuesHeading();
         heading1.setMqId(2);
-        heading1.setHeading("B");
+        heading1.setHeading("BB");
         heading1.setAxis("y");
         databaseHandler.addHeading(heading1);
 

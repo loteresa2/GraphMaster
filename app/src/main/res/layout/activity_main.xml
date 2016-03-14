@@ -44,22 +44,28 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:orientation="vertical">
+                    <Button
+                        android:text="Level 1"
+                        android:id="@+id/btnLevel1"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                    </Button>
+                    <Button
+                        android:text="Level 2"
+                        android:id="@+id/btnLevel2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                    </Button>
 
                     <Button
-                        android:text="Read Graph"
-                        android:id="@+id/btnRead"
+                        android:text="Level 3"
+                        android:id="@+id/btnLevel3"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content">
                     </Button>
                     <Button
-                        android:text="Create Graph"
-                        android:id="@+id/btnCreate"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content">
-                    </Button>
-                    <Button
-                        android:text="Create Own Graph"
-                        android:id="@+id/btnOwn"
+                        android:text="Level 4"
+                        android:id="@+id/btnLevel4"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content">
                     </Button>
