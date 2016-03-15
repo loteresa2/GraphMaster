@@ -36,11 +36,12 @@ public class MainActivity extends Activity {
         Button btnRead = (Button) findViewById(R.id.btnLevel2);
         Button btnCreate = (Button) findViewById(R.id.btnLevel1);
         Button btnOwn = (Button) findViewById(R.id.btnLevel3);
+        Button btnlevel4 = (Button) findViewById(R.id.btnLevel4);
         Button LoadDB = (Button)findViewById(R.id.btnLoadDB);
         LoadDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoadDatabase(mContext);
+               // LoadDatabase(mContext);
             }
         });
         btnRead.setOnClickListener(new View.OnClickListener() {
@@ -54,6 +55,14 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DrawGraphActivity.class);
+                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+        btnlevel4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LineGraphActivity.class);
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }

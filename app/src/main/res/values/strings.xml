@@ -6,4 +6,5 @@
     <string name="title_activity_draw_graph">DrawGraphActivity</string>
     <string name="video">video</string>
     <string name="tutorial">tutorial</string>
+    <string name="title_activity_show_text">ShowTextActivity</string>
 </resources>

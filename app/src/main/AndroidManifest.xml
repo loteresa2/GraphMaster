@@ -29,6 +29,10 @@
         <activity
             android:name=".UI.DrawGraphActivity"
             android:label="@string/title_activity_draw_graph"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".UI.ShowTextActivity"
+            android:label="@string/title_activity_show_text"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

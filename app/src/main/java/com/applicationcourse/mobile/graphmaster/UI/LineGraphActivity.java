@@ -2,27 +2,32 @@ package com.applicationcourse.mobile.graphmaster.UI;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -31,6 +36,7 @@ import android.widget.Toast;
 
 import com.applicationcourse.mobile.graphmaster.Database.DatabaseHandler;
 import com.applicationcourse.mobile.graphmaster.Database.HeadingData;
+import com.applicationcourse.mobile.graphmaster.Database.Help;
 import com.applicationcourse.mobile.graphmaster.Database.MainQues;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHData;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHeading;
@@ -71,10 +77,11 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
     boolean checkXLabel = false,checkYLabel = false;
     //check if the point has already been plotted
     int xpointTwice[],ypointTwice[],pointTwice[];
-
+    RelativeLayout seekRelative;
     private SeekBar seekBarX,seekBarY;
     private TextView tvXMax,tvYMax;
     int xLowerValue,xHigherValue, yLowerValue, yHigherValue;
+    ImageButton menuButton,textButton,pictureButton;
     float step;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,7 +105,10 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
 
         seekBarX = (SeekBar)findViewById(R.id.seekBarX);
         seekBarY = (SeekBar)findViewById(R.id.seekBarY);
-
+        menuButton = (ImageButton)findViewById(R.id.menuButton);
+        textButton = (ImageButton)findViewById(R.id.textButton);
+        pictureButton = (ImageButton)findViewById(R.id.ImageButton);
+        seekRelative = (RelativeLayout) findViewById(R.id.seekLayout);
         //first the seek bar can not be moved
         seekBarY.setEnabled(false);
         seekBarX.setEnabled(false);
@@ -114,6 +124,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
         //get the number of points the students need to plot
         //checkpoint = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
         setQuestionView();
+        paint.setTextSize(30);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,7 +141,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                         inputTxt = editTextDyn.getText().toString();
                     }
                     inputTxt = inputTxt.trim();
-                    if (subid == 4) {
+                    if (subid == 3) {
                         if ((checkXLabel == true) && (checkYLabel == true)) {
                             btnSubmit.setEnabled(false);
                             btnNext.setEnabled(true);
@@ -139,13 +150,13 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                             btnNext.setEnabled(false);
                             noOfWrong++;
                         }
-                    } else if (subid == 5 || subid == 6) {
+                    } else if (subid == 4 || subid == 5) {
                         //Checking for the input value for interval
                         if (answerList.contains(inputTxt)) {
                             //display the explanation
-                            if (subid == 5) {
+                            if (subid == 4) {
                                 xMultiple = Integer.parseInt(inputTxt);
-                            } else if (subid == 6) {
+                            } else if (subid == 5) {
                                 yMultiple = Integer.parseInt(inputTxt);
                             }
                             String optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), subid, inputTxt);
@@ -156,7 +167,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                             Toast.makeText(getBaseContext(), "Enter the interval", Toast.LENGTH_SHORT).show();
                             noOfWrong++;
                         }
-                    } else if (subid == 7) {
+                    } else if (subid == 6) {
                         txtTitle = (TextView) findViewById(R.id.txtTitle);
                         if (txtTitle.getText().length() == 0) {
                             Toast.makeText(getBaseContext(), "Enter the title", Toast.LENGTH_SHORT).show();
@@ -164,7 +175,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                             btnSubmit.setEnabled(false);
                             btnNext.setEnabled(true);
                         }
-                    } else if (subid == 8) {
+                    } else if (subid == 7) {
                       /*  if (checkpoint != 0) {
                             noOfWrong++;
                             Toast.makeText(getBaseContext(), "Not all points are plotted", Toast.LENGTH_SHORT).show();
@@ -192,6 +203,10 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
             public void onClick(View v) {
                 if (qid < mainQuesList.size()) {
                     if (subQuesCount < (currentQ.getSubQuestionList().size())) {
+                        if(subQuesCount > 4){
+                            seekRelative.setVisibility(View.VISIBLE);
+                        }
+                        txtExplanation.setText("");
                         String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
                         if (optionType.equals("Radio")) {
                             RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioSetupSel);
@@ -255,6 +270,73 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                 }
             }
         });
+        menuButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //get video and text guide
+                        // mQuickAction.show(v);
+                        //mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
+                        //Query the database
+                        long mid = currentQ.getMqId();
+                        long subid = currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
+                        Help help = new Help();
+                        help = DatabaseHandler.getVideoHelp(mid, subid);
+                        Uri uri = Uri.parse(help.getValue());
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+                        Toast.makeText(getBaseContext(), "watch the video", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        textButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(LineGraphActivity.this,ShowTextActivity.class );
+                        int mid = (int)currentQ.getMqId();
+                        int subid = (int)currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("mid", mid);
+                        bundle.putInt("subid", subid);
+                        intent.putExtras(bundle);
+                        //intent.putExtra("subid",subid);
+                        startActivity(intent);
+                    }
+                }
+        );
+
+        pictureButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        /*
+                        long mid = currentQ.getMqId();
+                        long subid = currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
+                        Help help = new Help();
+                        help = DatabaseHandler.getImageHelp(mid, subid);
+                        Bitmap imagedata = null;
+                        imagedata = BitmapFactory.decodeByteArray(help.getImage(), 0, (help.getImage()).length);
+                        */
+                        final AlertDialog.Builder alertadd = new AlertDialog.Builder(LineGraphActivity.this);
+                        LayoutInflater factory = LayoutInflater.from(LineGraphActivity.this);
+                        final View view = factory.inflate(R.layout.showpicture, null);
+                        ImageView image = (ImageView)view.findViewById(R.id.image1);
+                        //image.setImageBitmap(imagedata);
+                        image.setImageResource(R.drawable.first);
+                        alertadd.setView(view);
+                        alertadd.setNeutralButton("Done", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        AlertDialog alertDialog = alertadd.create();
+                        alertDialog.show();
+                    }
+                }
+        );
 
     }
 
@@ -322,9 +404,8 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         int subid = (int) currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
-        if (subid > 3) {
+        if (subid >= 3) {
             int action = event.getAction();
-            int MIN_DISTANCE = 250;
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     downx = event.getX();
@@ -344,7 +425,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                     Log.i("EachBoxX: ", eachBoxX + "");
                     Log.i("EachBoxY: ", eachBoxY + "");
 
-                    if(subid ==4){
+                    if(subid ==3){
                         if (checkXLabel==false)
                             drawXAxisLabel(downx, downy, eachBoxX, (eachBoxY * 9));
                         else {
@@ -352,10 +433,10 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                                 drawYAxisLabel(downx, downy, eachBoxY, eachBoxX);
                             }
                         }
-                    }else if(subid == 7){
+                    }else if(subid == 6){
                         drawTitle(downx, downy, eachBoxX, (eachBoxY * 9));
                     }
-                    else if(subid ==8){
+                    else if(subid ==7){
                         if (checkx != 0) {
                             drawXAxisPoints(downx, downy, eachBoxX, (eachBoxY * 9));
                         }else{
@@ -822,19 +903,23 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                 alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String inputVal = input.getText().toString();
-                        String corectLabel = DatabaseHandler.getHeadingName(currentQ.getMqId(), "x");
+                        inputVal.trim();
+                        List<String> answerList = DatabaseHandler.getExemplar(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
+                        String corectLabelEx = answerList.get(0);
+                        //String corectLabelEx = DatabaseHandler.getHeadingName(currentQ.getMqId(), "x");
                         float positionX = (eachBoxX * (lineDensity / 2)) - eachBoxX;//to make it some what in middle
                         //check if the Label is correct
-                        if (inputVal.equals(corectLabel)) {
+                        if (inputVal.length() > 0) {
                             paint.setColor(Color.RED);
                             canvas.drawText(inputVal, 0, inputVal.length(), positionX, usrYPosDisply, paint);
                             paint.setColor(Color.BLACK);
                             //set checkXLabel value so that it shows that we've already type in the correct x Label value
                             checkXLabel = true;
-                            //XLabel = corectLabel;
+                            txtExplanation.setText(corectLabelEx);
+                            //XLabel = corectLabelEx;
                         } else {
                             Toast.makeText(getBaseContext(), "Opps!You may miss something!Let's try again!", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(getBaseContext(), corectLabel, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), corectLabelEx, Toast.LENGTH_SHORT).show();
 
                         }
 
@@ -893,10 +978,12 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                 alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String inputVal = input.getText().toString();
-                        String corectLabel = DatabaseHandler.getHeadingName(currentQ.getMqId(),"y");
+                        inputVal.trim();
+                        List<String> answerList = DatabaseHandler.getExemplar(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
+                        String corectLabelEx = answerList.get(0);
                         float positionY = (eachBoxY * (lineDensity / 2)) - eachBoxY;//to make it some what in middle
                         //check the Y label
-                        if (inputVal.equals(corectLabel)) {
+                        if (inputVal.length() > 0) {
                             paint.setColor(Color.RED);
                             canvas.save();
                             canvas.rotate(-90, 120, 90);
@@ -904,7 +991,9 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                             canvas.restore();
                             paint.setColor(Color.BLACK);
                             checkYLabel=true;
-                            //YLabel = corectLabel;
+                            txtExplanation.setText(corectLabelEx);
+                            //Toast.makeText(getBaseContext(),corectLabelEx, Toast.LENGTH_LONG).show();
+                            //YLabel = corectLabelEx;
                         }else{
                             Toast.makeText(getBaseContext(), "Opps!You may miss something!Let's try again!", Toast.LENGTH_SHORT).show();
                         }
@@ -993,10 +1082,11 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
         downx = 0; downy = 0; upx = 0; upy = 0; checkx = 0;checky = 0; checkpoint = 0;
         checkXLabel = false; checkYLabel = false;
         txtTitle.setText("");
+        seekRelative.setVisibility(View.GONE);
         //set the check value
-        checkx = 2;
-        checky = 2;
-        checkpoint = 2;
+        checkx = 7;
+        checky =7;
+        checkpoint = 7;
         //initialize the checkTwice array;
         xpointTwice = new int[(int) checkx];
         ypointTwice = new int[(int) checky];
@@ -1018,6 +1108,8 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
             //Debug purpose
             Log.i("Touch pts: ", x + "");
             Log.i("Touch pts: ", y + "");
+            List<String> answerList = DatabaseHandler.getExemplar(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
+            String titleExample = answerList.get(0);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             final EditText input = new EditText(this);
             if(txtTitle.getText().length() == 0){
@@ -1044,6 +1136,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                 }
             });
             alert.show();
+            txtExplanation.setText(titleExample);
         }else{
             Toast.makeText(getBaseContext(),"Enter the title by clicking on bottom portion of the graph ",Toast.LENGTH_SHORT).show();
         }
@@ -1157,6 +1250,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                             }
                             seekBarX.setProgress(0);
                             seekBarY.setProgress(0);
+                            mImageView.invalidate();
                         }
                         if (flag == false) {
                             AlertDialog.Builder alert1 = new AlertDialog.Builder(LineGraphActivity.this);
@@ -1182,7 +1276,8 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                         AlertDialog alertDialog = alert1.create();
                         alertDialog.show();
                     }
-
+                    //redraw
+                    mImageView.invalidate();
                 }
             }
         });

@@ -8,18 +8,53 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".UI.DrawGraphActivity"
     android:weightSum="2">
-    <ImageView android:id="@+id/ImageView01" android:scaleType="fitStart"
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txtTitle"
-        android:textStyle="bold"
-        android:layout_below="@id/ImageView01"
-        android:background="@color/WHITE"/>
+        android:id="@+id/Relative1">
+        <ImageView android:id="@+id/ImageView01" android:scaleType="fitStart"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+        <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/menuButton"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/video"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"/>
+        <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/textButton"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/menuButton"
+            android:src="@drawable/text"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"/>
+        <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/ImageButton"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/textButton"
+            android:src="@drawable/picture"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtTitle"
+            android:textStyle="bold"
+            android:layout_below="@id/ImageView01"
+            android:background="@color/WHITE"/>
+    </RelativeLayout>
+
+
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,7 +62,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:id="@+id/scrollView"
-        android:layout_below="@+id/txtTitle"
+        android:layout_below="@+id/Relative1"
         android:layout_weight="1">
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
