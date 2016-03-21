@@ -51,6 +51,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String COLUMN_SUBQUESTION = "subquestion";
     public static final String COLUMN_OPTION_TYPE = "optionType";
 
+    //////////////////////Grading///////////////////////////////////
+    //Since its same grade for all subquestion irrespective of level , this table is created
+    public static final String TABLE_NAME_MARK= "marks";
+    public static final String COLUMN_SUBQ_ID_MARK = "subId";
+    public static final String COLUMN_WEIGHT = "weight";
+
     ////////////////////////Option Table//////////////////////////////////////////
     public static final String TABLE_OPTION_NAME = "option";
     public static final String COLUMN_MAINQ_ID = "mainID";
@@ -139,6 +145,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + COLUMN_SUB_TYPE + " text not null,"
             + COLUMN_SUBQUESTION + " text not null,"
             + COLUMN_OPTION_TYPE + " text not null"
+            + ");";
+    private static final String DATABASE_MARK_CREATE = " CREATE TABLE "
+            + TABLE_NAME_MARK
+            + "("
+            + COLUMN_SUBQ_ID_MARK + " integer not null,"
+            + COLUMN_WEIGHT + " integer not null"
             + ");";
 
     private static final String DATABASE_OPTION_CREATE = "CREATE TABLE "
@@ -230,6 +242,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //Added now so that data is not repeated.  Remove later
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_ENTRIES);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MARK);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_OPTION_NAME);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_HEADING_NAME);
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_HDATA_NAME);
@@ -239,6 +252,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         database.execSQL(DATABASE_MAIN_CREATE);
         database.execSQL(DATABASE_SUB_CREATE);
+        database.execSQL(DATABASE_MARK_CREATE);
         database.execSQL(DATABASE_OPTION_CREATE);
         database.execSQL(DATABASE_HEADING_CREATE);
         database.execSQL(DATABASE_DATA_CREATE);
@@ -251,7 +265,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         database.execSQL(insert1);
         //String insert2 = "INSERT INTO "+TABLE_PROGRESS_NAME+" ("+COLUMN_DATE+","+COLUMN_STUD_ID+","+COLUMN_FUNCT_TYPE+","+COLUMN_LEVEL+","+COLUMN_TIME_TAKEN+","+COLUMN_NUM_WRONG+") VALUES ('4/3/2016','1','create','1','3','4')";
         //database.execSQL(insert2);
-        insertLevel1(database);
+        insertLevel1AndMarks(database);
         insertLevel2(database);
         insertHelp(database);
     }
@@ -263,6 +277,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ENTRIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MARK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPTION_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HEADING_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HDATA_NAME);
@@ -351,6 +366,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
 
     //////////////////////////////////OPTION///////////////////////////////////////////////////
     //Adding a OPTION into database
@@ -607,6 +623,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.close();
         return subList;
+    }
+    //Get List of marks
+    public static Float[] getAllMarksList() {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+
+        String countQuery = "SELECT * FROM " + TABLE_NAME_MARK;
+        Cursor cursor = db.rawQuery(countQuery,null);
+        Float[] marksList = new Float[cursor.getCount()];
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            marksList[i] =
+                    Float.parseFloat(cursor.getString(1));               // Weight
+            cursor.moveToNext();
+        }
+
+        db.close();
+        return marksList;
     }
 
     ////////////////////////////////////////////////OPTION//////////////////////////////////////////////////////////////
@@ -914,53 +953,96 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return entry;
     }
-
+    public static float getTotalScore(int mainId){
+        int headingDataCount = DatabaseHandler.getAllHeadingData(mainId).size();
+        int axisIntervalNo = 7;
+        float totalScore=0;
+        Float[] marksArray = DatabaseHandler.getAllMarksList();
+        for(int i = 0; i < marksArray.length; i++){
+            if(i==7){
+                //Points of all x axis interval and y axis interval
+                totalScore+= (marksArray[i]*axisIntervalNo*2);
+                //Points that's to be plotted
+                totalScore+=(marksArray[i] * headingDataCount);
+            }
+            else {
+                totalScore += marksArray[i];
+            }
+        }
+        return totalScore;
+    }
+    public static String getProgressResult(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
+    return "nextLevel";
+    }
     //Get Progress Data row value from db
-    public static String getProgressResult(int studId,String function, int level,String timeTaken,String timeThreshold) {
-        SQLiteDatabase db = databaseHandler.getReadableDatabase();
-
+    public static String getProgressResult1(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
         // Uses a cursor to query from the database.
         // Provides the strings we want from the query and the query parameters
         //IF student finishes fast and no mistake
         Cursor cursor;
         String countQuery;
-        int noOfWrong;
-        //TODO: count the number of attempt for each function: if count > 2 then only do below
+        float score;
+        //total score
+        float total = DatabaseHandler.getTotalScore(mainId);
 
+        //TODO: count the number of attempt for each function: if count > 2 then only do below
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
         countQuery = "SELECT * FROM "+TABLE_PROGRESS_NAME+" WHERE "+COLUMN_LEVEL+" =?";
-        cursor = db.rawQuery(countQuery,null);
-        if(cursor.getCount() > 1) {
+        cursor = db.rawQuery(countQuery,new String[]{ String.valueOf(level)});
+        if(cursor.getCount() >= 1) {
             if (timeTaken.compareTo(timeThreshold) < 0) {
-                countQuery = "SELECT SUM( A." + COLUMN_NUM_WRONG + ") FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
+              /*  countQuery = "SELECT SUM( A." + COLUMN_NUM_WRONG + ") FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
                         + " WHERE " + COLUMN_STUD_ID + " =? AND "
                         + COLUMN_FUNCT_TYPE + " =? AND " + COLUMN_LEVEL + " =? " +
                         " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 2 ) A WHERE A." + COLUMN_TIME_TAKEN + " <= ?  GROUP BY A." + COLUMN_LEVEL;
+               */
+                countQuery = "SELECT A." + COLUMN_NUM_WRONG + " FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
+                        + " WHERE " + COLUMN_STUD_ID + " =? AND "
+                        + COLUMN_FUNCT_TYPE + " =? AND " + COLUMN_LEVEL + " =? " +
+                        " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 1 ) A WHERE A." + COLUMN_TIME_TAKEN + " <= ?  GROUP BY A." + COLUMN_LEVEL;
+
                 cursor = db.rawQuery(countQuery, new String[]{String.valueOf(studId), function, String.valueOf(level), timeThreshold});
                 if (cursor != null)
                     cursor.moveToFirst();
-                noOfWrong = Integer.parseInt(cursor.getString(0));
-                if (noOfWrong == 0) {
+                score = Float.parseFloat(cursor.getString(0));
+                //10% mistake
+                float lessMistake = (float)(.1 *total);
+                float mediumMistake = (float)(.3 *total);
+                float moreMistake = (float)(.5 *total);
+                if ((score) <= lessMistake) {
                     db.close();
                     return "promoteLevel";
+                }else if((score) <= mediumMistake) {
+                    db.close();
+                    return "nextLevel";
+                } else if((score) >= moreMistake) {
+                    db.close();
+                    return "lowerLevel";
                 }
             }
-            //If slow and no mistake it will return 0, else return no of mistake
-            countQuery = "SELECT SUM(" + COLUMN_NUM_WRONG + ") FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
+            //If greater than time threshold and 75% mistake it will return lowerLevel, else return continue same Level
+            countQuery = "SELECT " + COLUMN_NUM_WRONG + " FROM ( SELECT * FROM " + TABLE_PROGRESS_NAME
                     + " WHERE " + COLUMN_STUD_ID + " =? AND "
                     + COLUMN_FUNCT_TYPE + " =? AND " + COLUMN_LEVEL + " =? " +
-                    " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 2 ) WHERE " + COLUMN_TIME_TAKEN + " > ?  GROUP BY " + COLUMN_LEVEL;
+                    " ORDER BY " + COLUMN_ATTEMPT_COUNT + " DESC LIMIT 1 ) WHERE " + COLUMN_TIME_TAKEN + " > ?  GROUP BY " + COLUMN_LEVEL;
             cursor = db.rawQuery(countQuery, new String[]{String.valueOf(studId), function, String.valueOf(level), timeThreshold});
             if (cursor.getCount() > 0) {
                 if (cursor != null)
                     cursor.moveToFirst();
-                noOfWrong = Integer.parseInt(cursor.getString(0));
-                db.close();
-                if (noOfWrong == 0) {
+                score = Float.parseFloat(cursor.getString(0));
+                //75% mistake
+                float mediumMistake = (float)(.3 *total);
+                float moreMistake = (float)(.5 *total);
+                if((score) <= mediumMistake) {
+                    db.close();
                     return "nextLevel";
+                } else if((score) >= moreMistake) {
+                    db.close();
+                    return "lowerLevel";
                 }
             }
         }
-        return "repeatLevel";
+        return "continueSmeLevel";
     }
 
 
@@ -2067,7 +2149,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
-    public void insertLevel1(SQLiteDatabase database){
+    public void insertLevel1AndMarks(SQLiteDatabase database){
         //Level 1/////////
         ////MainQ//////
         String MainQ1 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
@@ -2138,6 +2220,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         database.execSQL(SubQ6);
         database.execSQL(SubQ7);
         database.execSQL(SubQ8);
+
+        //Marks for all subquestion
+        String marks1 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'1','2')";
+        String marks2 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'2','0.5')";
+        String marks3 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'3','6')";
+        String marks4 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'4','2')";
+        String marks5 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'5','2')";
+        String marks6 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'6','3')";
+        String marks = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'7','6')";
+        String marks7 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'7','2')";
+        String marks8 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
+                "'8','2')";
+        database.execSQL(marks1);
+        database.execSQL(marks2);
+        database.execSQL(marks3);
+        database.execSQL(marks4);
+        database.execSQL(marks5);
+        database.execSQL(marks6);
+        database.execSQL(marks7);
+        database.execSQL(marks8);
 
         //option and explanation
         String Option111 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +

@@ -61,7 +61,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
     Canvas canvas;
     Paint paint;
     TextView txtTitle;
-    float xMultiple,yMultiple;
+    float xMultiple=1,yMultiple=1;
     int setMaxX, setMaxY;
     //check if we finish ploting all the intervals for x axis and then we'll set y axis interval touch available,
     //first enable x axis, then y then areas between 2 axis
@@ -141,32 +141,12 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                         inputTxt = editTextDyn.getText().toString();
                     }
                     inputTxt = inputTxt.trim();
+                    btnNext.setEnabled(true);
                     if (subid == 3) {
-                        if ((checkXLabel == true) && (checkYLabel == true)) {
-                            btnSubmit.setEnabled(false);
-                            btnNext.setEnabled(true);
-                            Toast.makeText(getBaseContext(), "Correct!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            btnNext.setEnabled(false);
-                            noOfWrong++;
-                        }
+                        btnNext.setEnabled(true);
                     } else if (subid == 4 || subid == 5) {
                         //Checking for the input value for interval
-                        if (answerList.contains(inputTxt)) {
-                            //display the explanation
-                            if (subid == 4) {
-                                xMultiple = Integer.parseInt(inputTxt);
-                            } else if (subid == 5) {
-                                yMultiple = Integer.parseInt(inputTxt);
-                            }
-                            String optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), subid, inputTxt);
-                            txtExplanation.setText(optionExpl);
-                            btnSubmit.setEnabled(false);
-                            btnNext.setEnabled(true);
-                        } else {
-                            Toast.makeText(getBaseContext(), "Enter the interval", Toast.LENGTH_SHORT).show();
-                            noOfWrong++;
-                        }
+                        btnNext.setEnabled(true);
                     } else if (subid == 6) {
                         txtTitle = (TextView) findViewById(R.id.txtTitle);
                         if (txtTitle.getText().length() == 0) {
@@ -177,7 +157,7 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                         }
                     } else if (subid == 7) {
                       /*  if (checkpoint != 0) {
-                            noOfWrong++;
+                            score++;
                             Toast.makeText(getBaseContext(), "Not all points are plotted", Toast.LENGTH_SHORT).show();
                         } else {*/
                         btnSubmit.setEnabled(false);
@@ -243,7 +223,8 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                         drawGraph();
                         //Reset the subquestion count back to zero
                         //Check the progress before proceeding
-                        String progress = DatabaseHandler.getProgressResult(1, "create", 1, time, "00:02:00");
+                        int mid = (int) currentQ.getMqId();
+                        String progress = DatabaseHandler.getProgressResult(1,mid, "create", 1, time, "00:02:00");
                         if (progress.equals("repeatLevel") || progress.equals("nextLevel")) {
                             qid++;
                             if (progress.equals("repeatLevel")) {
@@ -424,31 +405,25 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                     Log.i("upy: ", upy + "");
                     Log.i("EachBoxX: ", eachBoxX + "");
                     Log.i("EachBoxY: ", eachBoxY + "");
-
+                    btnNext.setEnabled(true);
                     if(subid ==3){
                         if (checkXLabel==false)
-                            drawXAxisLabel(downx, downy, eachBoxX, (eachBoxY * 9));
+                            btnNext.setEnabled(true);
+                           // drawXAxisLabel(downx, downy, eachBoxX, (eachBoxY * 9));
                         else {
                             if(checkYLabel==false){
-                                drawYAxisLabel(downx, downy, eachBoxY, eachBoxX);
+                                btnNext.setEnabled(true);
+                                //drawYAxisLabel(downx, downy, eachBoxY, eachBoxX);
                             }
                         }
                     }else if(subid == 6){
-                        drawTitle(downx, downy, eachBoxX, (eachBoxY * 9));
+                        btnNext.setEnabled(true);
+
+                       // drawTitle(downx, downy, eachBoxX, (eachBoxY * 9));
                     }
                     else if(subid ==7){
-                        if (checkx != 0) {
-                            drawXAxisPoints(downx, downy, eachBoxX, (eachBoxY * 9));
-                        }else{
-                            if (checky != 0) {
-                                drawYAxisPoints(downx, downy, eachBoxY, eachBoxX);
-                            }else{
                                 //TODO: change grade level < 4 and > 4
-                                if (checkpoint!=0 && grade > 4){
-                                    drawPoints(downx, downy, eachBoxX, eachBoxY, 1);
-                                }
-                                else
-                                if (checkpoint!=0 && grade >= 0 ){
+                                if ( grade >= 0 ){
                                     seekBarX.setEnabled(true);
                                     seekBarY.setEnabled(true);
                                     seekBarX.setOnSeekBarChangeListener(this);
@@ -514,9 +489,6 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
                                         seekBarX.setEnabled(false);
                                     }
                                 }
-
-                            }
-                        }
                     }
 
                     mImageView.invalidate();
@@ -1084,9 +1056,9 @@ public class LineGraphActivity  extends AppCompatActivity implements View.OnTouc
         txtTitle.setText("");
         seekRelative.setVisibility(View.GONE);
         //set the check value
-        checkx = 7;
-        checky =7;
-        checkpoint = 7;
+        checkx = 3;
+        checky =3;
+        checkpoint = 3;
         //initialize the checkTwice array;
         xpointTwice = new int[(int) checkx];
         ypointTwice = new int[(int) checky];

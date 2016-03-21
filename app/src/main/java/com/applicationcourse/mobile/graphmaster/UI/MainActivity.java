@@ -7,16 +7,19 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.applicationcourse.mobile.graphmaster.Database.DatabaseHandler;
 import com.applicationcourse.mobile.graphmaster.Database.MainQues;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHData;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHeading;
 import com.applicationcourse.mobile.graphmaster.Database.Options;
+import com.applicationcourse.mobile.graphmaster.Database.Progress;
 import com.applicationcourse.mobile.graphmaster.Database.SubQuestion;
 import com.applicationcourse.mobile.graphmaster.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +38,7 @@ public class MainActivity extends Activity {
         DatabaseHandler.deleteDatabase();
         Button btnRead = (Button) findViewById(R.id.btnLevel2);
         Button btnCreate = (Button) findViewById(R.id.btnLevel1);
-        Button btnOwn = (Button) findViewById(R.id.btnLevel3);
+        Button btnLevel3 = (Button) findViewById(R.id.btnLevel3);
         Button btnlevel4 = (Button) findViewById(R.id.btnLevel4);
         Button LoadDB = (Button)findViewById(R.id.btnLoadDB);
         LoadDB.setOnClickListener(new View.OnClickListener() {
@@ -67,12 +70,15 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
-        btnOwn.setOnClickListener(new View.OnClickListener() {
+        btnLevel3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Not yet implemented",Toast.LENGTH_SHORT).show();
-
-
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date date = new Date();
+                String dateVal = dateFormat.format(date);
+                Progress prog = new Progress(dateVal, 1, "create", 1, "00:02:10", 55);
+                DatabaseHandler.addProgressData(prog);
+                String progress = DatabaseHandler.getProgressResult(1,1, "create", 1, "00:02:10", "00:02:00");
             }
         });
 

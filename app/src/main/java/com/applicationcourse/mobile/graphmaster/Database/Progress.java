@@ -10,9 +10,9 @@ public class Progress {
     int level;
     int attempCount;
     String timeTaken;
-    int no_wrong_ans;
+    float no_wrong_ans;
 
-    public Progress(String dateTime, int studId, String funcType, int level, String timeTaken, int no_wrong_ans) {
+    public Progress(String dateTime, int studId, String funcType, int level, String timeTaken, float no_wrong_ans) {
         this.dateTime = dateTime;
         this.studId = studId;
         this.funcType = funcType;
@@ -20,7 +20,7 @@ public class Progress {
         this.timeTaken = timeTaken;
         this.no_wrong_ans = no_wrong_ans;
     }
-    public Progress(String dateTime, int studId, String funcType, int level, int attempCount, String timeTaken, int no_wrong_ans) {
+    public Progress(String dateTime, int studId, String funcType, int level, int attempCount, String timeTaken, float no_wrong_ans) {
         this.dateTime = dateTime;
         this.studId = studId;
         this.funcType = funcType;
@@ -78,7 +78,7 @@ public class Progress {
         this.timeTaken = timeTaken;
     }
 
-    public int getNo_wrong_ans() {
+    public float getNo_wrong_ans() {
         return no_wrong_ans;
     }
 
