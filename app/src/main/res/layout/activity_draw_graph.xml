@@ -124,11 +124,12 @@
                     android:layout_below="@id/tvYMax"/>
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/txtMainQues"
+            <WebView
+                android:id="@+id/webMainQues"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Question Here?"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
             <TableLayout
                 android:layout_width="wrap_content"
@@ -145,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sub Question Here?"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:layout_below="@id/txtMainQues"/>
+                android:layout_below="@id/webMainQues"/>
             <LinearLayout
                 android:id="@+id/layoutDynamic"
                 android:layout_width="match_parent"

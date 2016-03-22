@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -55,17 +57,19 @@ import java.util.List;
 
 public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouchListener,SeekBar.OnSeekBarChangeListener {
     private int lineDensity = 10;
-    int eachBoxX,eachBoxY,qid = 0,i = 1,grade = 1,subQuesCount = 0, optionCount = 0, width,height;
-    float score = 0;
+    int eachBoxX,eachBoxY,qid = 0,i = 1,grade = 1,subQuesCount = 0, optionCount = 0, width,height, noOfWrong = 0;
     long timeStart =0;
     private Bitmap staticBitmap = null;
     Bitmap bitmap;
     ImageView mImageView;
+    Float[] marksList;
+    float score = 0;
     Canvas canvas;
     Paint paint;
     TextView txtTitle;
     float xMultiple,yMultiple;
     int setMaxX, setMaxY;
+    int noOfLevel = 4;
     //check if we finish ploting all the intervals for x axis and then we'll set y axis interval touch available,
     //first enable x axis, then y then areas between 2 axis
     float downx = 0, downy = 0, upx = 0, upy = 0, XEnd, YEnd, checkx,checky, checkpoint = 0;
@@ -73,14 +77,12 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     List<MainQues> mainQuesList;
     MainQues currentQ;
     List<HeadingData> pointList;
-    Float[] marksList;
-    TextView txtQuestion, txtSubQues, txtExplanation;
+    WebView txtQuestion;
+    TextView txtSubQues, txtExplanation;
     Button btnNext,btnSubmit;
     EditText editTextDyn;
     List<MainQuesHeading> mainQuesHeadingList;
     boolean checkXLabel = false,checkYLabel = false;
-    //TODO: change total no of level
-    int noOfLevel = 4;
     //check if the point has already been plotted
     int xpointTwice[],ypointTwice[],pointTwice[];
     RelativeLayout seekRelative;
@@ -92,15 +94,13 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int level;
         setContentView(R.layout.activity_draw_graph);
         DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
         width = (metrics.widthPixels);
         height = ((metrics.heightPixels) / 2);
-        level = 1;
         mImageView = (ImageView) findViewById(R.id.ImageView01);
 
-        txtQuestion = (TextView) findViewById(R.id.txtMainQues);
+        txtQuestion = (WebView) findViewById(R.id.webMainQues);
         txtSubQues = (TextView) findViewById(R.id.txtSubQues);
         txtExplanation = (TextView) findViewById(R.id.txtExpl);
         btnNext = (Button) findViewById(R.id.btnNext);
@@ -121,13 +121,13 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         //initialize the seekbar
         seekBarX.setProgress(0);
         seekBarY.setProgress(0);
-
         drawGraph();
 
-        getQuestions(level);
+        getQuestions(grade);
         marksList = DatabaseHandler.getAllMarksList();
         //To generate view for each main question
         //qid will keep track of current main question, subQuesCount will keep track of current subquestion
+        currentQ = mainQuesList.get(qid);
         //get the number of points the students need to plot
         //checkpoint = currentQ.getMainQuesHeadList().get(0).getMainQuesHDataList().size();
         setQuestionView();
@@ -173,28 +173,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             });
                             //now that the dialog is set up, it's time to show it
                             rankDialog.show();
-
-                          //  Toast.makeText(getBaseContext(), value, Toast.LENGTH_SHORT).show();
-
-                           /* AlertDialog.Builder alert = new AlertDialog.Builder(DrawGraphActivity.this);
-                            alert.setTitle("Enter no of stars");
-                            // Set an EditText view to get user input
-                            final EditText input = new EditText(DrawGraphActivity.this);
-                            input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                            alert.setView(input);
-                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String inputTxt = input.getText().toString();
-                                    int point = Integer.parseInt(inputTxt);
-                                    if (point != 3) {
-                                        score += (marksList[subid - 1]) / point;
-                                    }
-                                    dialog.dismiss();
-                                    paint.setColor(Color.BLACK);
-
-                                }
-                            });
-                            alert.show();*/
                             btnSubmit.setEnabled(false);
                             btnNext.setEnabled(true);
                             Toast.makeText(getBaseContext(), "Correct!", Toast.LENGTH_SHORT).show();
@@ -246,25 +224,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             });
                             //now that the dialog is set up, it's time to show it
                             rankDialog.show();
-                          /*  AlertDialog.Builder alert = new AlertDialog.Builder(DrawGraphActivity.this);
-                            alert.setTitle("Enter no of stars");
-                            // Set an EditText view to get user input
-                            final EditText input = new EditText(DrawGraphActivity.this);
-                            input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                            alert.setView(input);
-                            alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String inputTxt = input.getText().toString();
-                                    int point = Integer.parseInt(inputTxt);
-                                    if(point != 3){
-                                        score += (marksList[subid - 1]) / point;
-                                    }
-                                    dialog.dismiss();
-                                    paint.setColor(Color.BLACK);
 
-                                }
-                            });
-                            alert.show();*/
                             btnSubmit.setEnabled(false);
                             btnNext.setEnabled(true);
                         }
@@ -273,54 +233,87 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             score += marksList[subid];
                             Toast.makeText(getBaseContext(), "Not all points are plotted", Toast.LENGTH_SHORT).show();
                         } else {
-                        btnSubmit.setEnabled(false);
-                        btnNext.setEnabled(true);
+                            btnSubmit.setEnabled(false);
+                            btnNext.setEnabled(true);
                         }
                     } else {
-                        String optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId(), inputTxt);
-                        if (answerList.contains(inputTxt)) {
+                        String optionExpl;
+                        if(grade == 4 && subQuesCount == 0) {
+                            optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), 9, "none");
                             txtExplanation.setText(optionExpl);
-                            btnNext.setEnabled(true);
-                            //Toast.makeText(getBaseContext(), "Please type in the label value for both X and Y axis before coming to the next question! ", Toast.LENGTH_SHORT).show();
+                            //Make star for Label
+                            rankDialog.setContentView(R.layout.rank_dialog);
+                            rankDialog.setCancelable(true);
+                            final RatingBar ratingBar = (RatingBar)rankDialog.findViewById(R.id.dialog_ratingbar);
+                            // text.setText(optionExpl);
+                            ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                                public void onRatingChanged(RatingBar ratingBar, float rating,
+                                                            boolean fromUser) {
+                                    Toast.makeText(getBaseContext(), String.valueOf(rating), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            //grade4 Toast.makeText(getBaseContext(), "Please type in the label value for both X and Y axis before coming to the next question! ", Toast.LENGTH_SHORT).show();
                             btnSubmit.setEnabled(false);
-                        } else {
-                            score += marksList[subid-1];
-                            txtExplanation.setText(optionExpl);
+                            Button updateButton = (Button) rankDialog.findViewById(R.id.rank_dialog_button);
+                            updateButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    float point = (ratingBar.getRating());
+                                    if(point != 3) {
+                                        score += (marksList[0]) / point;
+                                    }
+                                    btnNext.setEnabled(true);
+                                    rankDialog.dismiss();
+                                }
+                            });
+                            //now that the dialog is set up, it's time to show it
+                            rankDialog.show();
+                        }else{
+                            optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId(), inputTxt);
+                            if (answerList.contains(inputTxt)) {
+                                txtExplanation.setText(optionExpl);
+                                btnNext.setEnabled(true);
+                                //Toast.makeText(getBaseContext(), "Please type in the label value for both X and Y axis before coming to the next question! ", Toast.LENGTH_SHORT).show();
+                                btnSubmit.setEnabled(false);
+                            } else {
+                                score += marksList[subid-1];
+                                txtExplanation.setText(optionExpl);
+                            }
                         }
+
                     }
                 }
             }
         });
-        final int level1 = level;
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (qid < mainQuesList.size()) {
                     if (subQuesCount < (currentQ.getSubQuestionList().size())) {
                         float temp = score;
-                        if(subQuesCount > 4 && level1 > 3){
+                        if(subQuesCount > 4 && grade > 3){
                             seekRelative.setVisibility(View.VISIBLE);
                         }
 
+                    }
+                    txtExplanation.setText("");
+                    String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
+                    if (optionType.equals("Radio")) {
+                        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioSetupSel);
+                        radioGroup.clearCheck();
+                        radioGroup.removeAllViews();
+                    } else if (optionType.equals("TextBox")) {
+                        View editTextRemove = (EditText) findViewById(R.id.edittext_dynamic);
+                        ViewGroup parent = (ViewGroup) editTextRemove.getParent();
+                        if (parent != null) {
+                            parent.removeView(editTextRemove);
                         }
-                        txtExplanation.setText("");
-                        String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
-                        if (optionType.equals("Radio")) {
-                            RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioSetupSel);
-                            radioGroup.clearCheck();
-                            radioGroup.removeAllViews();
-                        } else if (optionType.equals("TextBox")) {
-                            View editTextRemove = (EditText) findViewById(R.id.edittext_dynamic);
-                            ViewGroup parent = (ViewGroup) editTextRemove.getParent();
-                            if (parent != null) {
-                                parent.removeView(editTextRemove);
-                            }
-                        }
-                        ++subQuesCount;
-                        TableLayout tableLayout = (TableLayout) findViewById(R.id.table);
-                        tableLayout.removeAllViews();
+                    }
+                    ++subQuesCount;
+                    TableLayout tableLayout = (TableLayout) findViewById(R.id.table);
+                    tableLayout.removeAllViews();
 
-                    if (subQuesCount < (currentQ.getSubQuestionList().size())) {
+                    if (subQuesCount != 8 && subQuesCount < (currentQ.getSubQuestionList().size()) ) {
                         setQuestionView();
                         btnSubmit.setEnabled(true);
                     } else {
@@ -344,7 +337,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                         String progress = DatabaseHandler.getProgressResult(1,mainid, "create", 1, time, "00:01:00");
                         if (progress.equals("continueSmeLevel")) {
                             if (qid >= (mainQuesList.size()-1)) {
-                                    qid = 0;
+                                qid = 0;
 
                             } else {
                                 qid++;
@@ -355,28 +348,22 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             setQuestionView();
                             btnSubmit.setEnabled(true);
                         }else if(progress.equals("nextLevel")) {
-                            if (qid >= (mainQuesList.size()-1)) {
-                                grade++;
-                                qid = 0;
-                                getQuestions(grade);
-                            } else if (qid < (mainQuesList.size()-1)){
-                                qid++;
-                                currentQ = mainQuesList.get(qid);
-                                //Get  x and y axis value as points
-                                pointList = DatabaseHandler.getAllHeadingData((int) currentQ.getMqId());
-                                setQuestionView();
-                                btnSubmit.setEnabled(true);
-                            }
-
+                            grade++;
+                            qid = 0;
+                            getQuestions(grade);
+                            //Get  x and y axis value as points
+                            pointList = DatabaseHandler.getAllHeadingData((int) currentQ.getMqId());
+                            setQuestionView();
+                            btnSubmit.setEnabled(true);
                         }else if (progress.equals("promoteLevel")) {
                             if(grade < noOfLevel-1) {
                                 grade++;
                                 qid = 0;
                                 getQuestions(grade++);
                             }else if(grade == noOfLevel - 1){
-                                    grade++;
-                                    qid = 0;
-                                    getQuestions(grade++);
+                                grade++;
+                                qid = 0;
+                                getQuestions(grade++);
                             }
                         } else if (progress.equals("lowerLevel")) {
                             //if its in level > 1 then only it can lower the grade else continue in same level
@@ -441,20 +428,20 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*
+
                         long mid = currentQ.getMqId();
                         long subid = currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
                         Help help = new Help();
                         help = DatabaseHandler.getImageHelp(mid, subid);
                         Bitmap imagedata = null;
                         imagedata = BitmapFactory.decodeByteArray(help.getImage(), 0, (help.getImage()).length);
-                        */
+
                         final AlertDialog.Builder alertadd = new AlertDialog.Builder(DrawGraphActivity.this);
                         LayoutInflater factory = LayoutInflater.from(DrawGraphActivity.this);
                         final View view = factory.inflate(R.layout.showpicture, null);
                         ImageView image = (ImageView)view.findViewById(R.id.image1);
-                        //image.setImageBitmap(imagedata);
-                        image.setImageResource(R.drawable.first);
+                        image.setImageBitmap(imagedata);
+                        //image.setImageResource(R.drawable.first);
                         alertadd.setView(view);
                         alertadd.setNeutralButton("Done", new DialogInterface.OnClickListener() {
                             @Override
@@ -476,9 +463,13 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         XEnd = eachBoxX * 9;
         YEnd = eachBoxY * 9;
         paint.setStrokeWidth(3);
+        paint.setTextSize(30);
         paint.setColor(Color.BLACK);
         canvas.drawLine(eachBoxX * 1, YEnd, XEnd, YEnd, paint);
         canvas.drawLine(eachBoxX * 1, YEnd, eachBoxX * 1, eachBoxY * 1, paint);
+        //Draw zero
+        final float usrYPosDisply = ((eachBoxY * 9) + ((eachBoxY * 9)) / 20);
+        canvas.drawText("0", eachBoxX, usrYPosDisply, paint);
         //Arrow
         canvas.drawLine(eachBoxX / 4 + eachBoxX, eachBoxY / 4 + eachBoxY, eachBoxX * 1, eachBoxY * 1, paint);
         canvas.drawLine(eachBoxX - eachBoxX / 4, eachBoxY / 4 + eachBoxY, eachBoxX * 1, eachBoxY * 1, paint);
@@ -678,7 +669,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 float xIntepretedPos = interpretTouchPosition(x, eachBoxX, eachBoxX);
                 float xIntepretedVal = interpretXInterval(xIntepretedPos, eachBoxX, eachBoxX, 1);
                 alert.setView(input);
-                int subid = (int) currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
+
                 if (xpointTwice[(int) xIntepretedVal - 1] == 0) {
                     alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -693,8 +684,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                 inpVal = Float.parseFloat(inputTxt);
                             }
                             if ( (inpVal - (xIntepretedVal* xMultiple)) != 0.0) {
-                                int subid = (int) currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
-                                score += marksList[subid-1];
+                                noOfWrong++;
                                 Toast.makeText(getBaseContext(), "Wrong input:Correct is: " + xIntepretedVal, Toast.LENGTH_SHORT).show();
                             } else {
                                 canvas.drawCircle(xIntepretedPos, (eachBoxY * 9), 4, paint);
@@ -721,6 +711,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 } else {
                     AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
                     alert1.setTitle("You've already set this point !Let's choose other points! ");
+                    noOfWrong++;
                     alert1.setCancelable(false);
                     alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -795,7 +786,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 final float xInitial = eachBoxX;
                 final float usrXPosDisply = (xInitial - (xInitial) / 4);  //For displaying the entered point by user at pos lower than the x-axis
                 float yIntepretedVal = interpretYInterval(y, eachBoxY, eachBoxY, 1);
-                final int subid = (int) currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
                 if (ypointTwice[(int) yIntepretedVal - 1] == 0) {
                     AlertDialog.Builder alert = new AlertDialog.Builder(this);
                     alert.setTitle("Enter Intervals for Y-axis");
@@ -815,8 +805,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                 inpVal = Integer.parseInt(inputTxt);
                             }
                             if ( (inpVal - (yIntepretedVal* yMultiple)) != 0.0) {
-                                Toast.makeText(getBaseContext(), "Wrong input! Try again!", Toast.LENGTH_SHORT).show();
-                                score += marksList[subid-1];
+                                Toast.makeText(getBaseContext(), "Wrong input:Correct is: " + yIntepretedVal, Toast.LENGTH_SHORT).show();
+                                noOfWrong++;
                             } else {
                                 canvas.drawCircle(xInitial, yIntepretedPos, 4, paint);
                                 canvas.drawText(inpVal+"", usrXPosDisply, yIntepretedPos, paint);
@@ -839,7 +829,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 } else {
                     AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
                     alert1.setTitle("You've already set this point !Let's choose other points! ");
-                    //score += marksList[subid-1];
+                    noOfWrong++;
                     alert1.setCancelable(false);
                     alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -879,7 +869,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     //when both x axis and y axis are finished, students can put other points
     public void drawPoints(float x, float y, float xInitial, float yInitial, int multiple) {
         boolean flag = false;
-        final int subid = (int) currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId();
         /* This function is used to drawPoints in the area in the axis*/
         if ((x > xInitial && y > yInitial) && (x < XEnd) && y < YEnd ) {
             //now we need to check if x value and y value are correct
@@ -904,7 +893,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             pointTwice[i] = 1;
                         } else {
                             AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
-                            alert1.setTitle("This point has already been plotted!Lets choose another point!");
+                            alert1.setTitle("this point has already been plotted!Lets choose another point!");
                             alert1.setCancelable(false);
                             alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -920,7 +909,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 if (flag == false) {
                     AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
                     alert1.setTitle("Opps!the point location is not correct");
-                    score += marksList[subid-1];
                     alert1.setCancelable(false);
                     alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -952,11 +940,17 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         if(subQuesCount == 0){
             timeStart = System.currentTimeMillis();
         }
-        txtQuestion.setText(currentQ.getQuestion());
+        String text = "<html><body>"
+                         + "<p align=\"justify\">"
+                         + currentQ.getQuestion()
+                         + "</p> "
+                         + "</body></html>";
+        txtQuestion.loadData(String.format("%s",text ), "text/html", "utf-8");
+       // txtQuestion.setText(currentQ.getQuestion());
         txtSubQues.setText(currentQ.getSubQuestionList().get(subQuesCount).getSubQuestion());
         //Need to dynamically generate the radio options
 /////////////////////////////////generate the option buttons//////////////////////////////////////
-       // List<Options> optionsList = currentQ.getSubQuestionList().get(subQuesCount).getOptionsList();
+        // List<Options> optionsList = currentQ.getSubQuestionList().get(subQuesCount).getOptionsList();
         List<Options> optionsList = DatabaseHandler.getOptionList(currentQ.getMqId(),currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
         String optionType = currentQ.getSubQuestionList().get(subQuesCount).getOptionType();
         if (optionType.equals("Radio")) {
@@ -977,37 +971,33 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             editTextDyn = new EditText(getApplicationContext());
             editTextDyn.setId(R.id.edittext_dynamic);
             layoutDynamic.addView(editTextDyn);
-            if(subQuesCount == 3 || subQuesCount == 4){
-                editTextDyn.setFocusable(false);
-                editTextDyn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(DrawGraphActivity.this);
-                        alert.setTitle("Enter the interval");
-                        // Set an EditText view to get user input
-                        final EditText input = new EditText(DrawGraphActivity.this);
-                        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        alert.setView(input);
-                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                String inputTxt1 = input.getText().toString();
-                                editTextDyn.setText(inputTxt1);
-                                dialog.dismiss();
-                                paint.setColor(Color.BLACK);
+            editTextDyn.setFocusable(false);
+            editTextDyn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(DrawGraphActivity.this);
+                    alert.setTitle("Enter the value");
+                    // Set an EditText view to get user input
+                    final EditText input = new EditText(DrawGraphActivity.this);
+                    input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    alert.setView(input);
+                    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            String inputTxt1 = input.getText().toString();
+                            editTextDyn.setText(inputTxt1);
+                            dialog.dismiss();
+                            paint.setColor(Color.BLACK);
 
-                            }
-                        });
-                        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                dialog.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-                });
-            }
-        } else if (optionType.equals("LabelAxis")) {
-            //call the function to add Label
+                        }
+                    });
+                    alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            dialog.dismiss();
+                        }
+                    });
+                    alert.show();
+                }
+            });
 
         }
 
@@ -1072,7 +1062,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                         float positionX = (eachBoxX * (lineDensity / 2)) - eachBoxX;//to make it some what in middle
                         //check if the Label is correct
                         if (inputVal.length() > 0) {
-                            paint.setColor(Color.RED);
                             canvas.drawText(inputVal, 0, inputVal.length(), positionX, usrYPosDisply, paint);
                             paint.setColor(Color.BLACK);
                             //set checkXLabel value so that it shows that we've already type in the correct x Label value
@@ -1110,7 +1099,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             }
         }else{
             AlertDialog.Builder alert1 = new AlertDialog.Builder(this);
-            alert1.setTitle("Plot Below X-Axis!");
+            //teresa
+            alert1.setTitle("Touch Below X-Axis!");
             alert1.setCancelable(false);
             alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -1146,7 +1136,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                         float positionY = (eachBoxY * (lineDensity / 2)) - eachBoxY;//to make it some what in middle
                         //check the Y label
                         if (inputVal.length() > 0) {
-                            paint.setColor(Color.RED);
                             canvas.save();
                             canvas.rotate(-90, 120, 90);
                             canvas.drawText(inputVal, -150, 0, paint);
@@ -1200,11 +1189,11 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         List<MainQuesHData> mainQuesHDataList;
         List<SubQuestion> subQuestionList;
 
-
+        //TODO: change total no of level
+        int noOfLevel = 1;
         if(level <= noOfLevel) {
             mainQuesList = DatabaseHandler.getAllMainQVal("Create", "Line", level);
             subQuestionList = DatabaseHandler.getSubQValueList("Create", "Line");
-            currentQ = mainQuesList.get(qid);
             for (MainQues main : mainQuesList) {
                 //get the list of heading for a main question
                 mainQuesHeadingList = DatabaseHandler.getHeadingList(main.getMqId());
@@ -1219,7 +1208,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 main.setSubQuestionList(subQuestionList);
             }
             //Get  x and y axis value as points
-            pointList = DatabaseHandler.getAllHeadingData((int)currentQ.getMqId());
+            pointList = DatabaseHandler.getAllHeadingData(1);
             //For Logging purpose, will remove it later.
             for (MainQues mainQues : mainQuesList) {
                 Log.i("Main Question : ", mainQues.getQuestion());
@@ -1232,12 +1221,12 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 }
             }
         }else{
-            Toast.makeText(getBaseContext(),"You finished learning this function",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(),"You finished learning this level",Toast.LENGTH_SHORT).show();
         }
     }
     public void drawGraph(){
         staticBitmap = null;
-        score = 0;
+        noOfWrong = 0;
         timeStart =0;
         bitmap = Bitmap.createBitmap((int) width, (int) height,
                 Bitmap.Config.ARGB_8888);
@@ -1246,9 +1235,9 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         txtTitle.setText("");
         seekRelative.setVisibility(View.GONE);
         //set the check value
-        checkx = 3;
-        checky =3;
-        checkpoint = 3;
+        checkx = 7;
+        checky =7;
+        checkpoint = 7;
         //initialize the checkTwice array;
         xpointTwice = new int[(int) checkx];
         ypointTwice = new int[(int) checky];
@@ -1286,8 +1275,9 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String inputVal = input.getText().toString();
+                    txtTitle.setTextSize(16);
                     txtTitle.setGravity(Gravity.CENTER);
-                    txtTitle.setText(inputVal);
+                    txtTitle.setText("Graph A: " + inputVal);
                     dialog.dismiss();
                 }
             });
@@ -1351,7 +1341,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
 
         //redraw
         mImageView.invalidate();
-
+        dashLine.setColor(Color.BLACK);
     }
 
     @Override
@@ -1397,7 +1387,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                         pointTwice[i] = 1;
                                     } else {
                                         AlertDialog.Builder alert1 = new AlertDialog.Builder(DrawGraphActivity.this);
-                                        alert1.setTitle("this point has already been plotted!Lets choose another point!");
+                                        alert1.setTitle("This point has already been plotted!Lets choose another point!");
                                         alert1.setCancelable(false);
                                         alert1.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {

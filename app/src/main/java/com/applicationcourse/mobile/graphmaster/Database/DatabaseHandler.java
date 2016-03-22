@@ -5,10 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.applicationcourse.mobile.graphmaster.R;
 import com.applicationcourse.mobile.graphmaster.Util.FileUtility;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -267,6 +271,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         //database.execSQL(insert2);
         insertLevel1AndMarks(database);
         insertLevel2(database);
+        insertLevel3(database);
+        insertLevel4(database);
         insertHelp(database);
     }
 
@@ -624,6 +630,55 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return subList;
     }
+    // Getting  sub Question list where function and type mathc the main question
+    public static List<SubQuestion> getSubQValueListGrade4(String function, String type) {
+        SQLiteDatabase db = databaseHandler.getReadableDatabase();
+        List<SubQuestion> subList = new ArrayList<SubQuestion>();;
+
+        // Uses a cursor to query from the database.
+        // Provides the strings we want from the query and the query parameters
+
+        String countQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SUB_FUNCTION + " =? AND " + COLUMN_SUB_TYPE + " =? ORDER BY "+COLUMN_SUB_ID+" DESC LIMIT 1";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{function, type});
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            SubQuestion entry = new SubQuestion(
+                    Long.parseLong(cursor.getString(0)),    // ID
+                    cursor.getString(1),                    // Type
+                    cursor.getString(2),                    //Function
+                    cursor.getString(3),                     //subquestion
+                    cursor.getString(4)                     //Option type
+            );
+
+            subList.add(entry);
+            cursor.moveToNext();
+        }
+        countQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_SUB_FUNCTION + " =? AND " + COLUMN_SUB_TYPE + " =?";
+        cursor = db.rawQuery(countQuery, new String[]{function, type});
+
+        if (cursor != null)
+            cursor.moveToFirst();
+        cursor.moveToNext(); //omit the first one
+        for (int i = 0; i < cursor.getCount()-2; i++) {
+            SubQuestion entry = new SubQuestion(
+                    Long.parseLong(cursor.getString(0)),    // ID
+                    cursor.getString(1),                    // Type
+                    cursor.getString(2),                    //Function
+                    cursor.getString(3),                     //subquestion
+                    cursor.getString(4)                     //Option type
+            );
+
+            subList.add(entry);
+            cursor.moveToNext();
+        }
+
+
+        db.close();
+        return subList;
+    }
     //Get List of marks
     public static Float[] getAllMarksList() {
         SQLiteDatabase db = databaseHandler.getReadableDatabase();
@@ -972,7 +1027,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return totalScore;
     }
     public static String getProgressResult(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
-    return "nextLevel";
+        return "nextLevel";
     }
     //Get Progress Data row value from db
     public static String getProgressResult1(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
@@ -1045,57 +1100,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return "continueSmeLevel";
     }
 
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Getting All Options
-    /*
-    public ArrayList<CGQuestion> getAllValues() {
-        ArrayList<CGQuestion> entryList = new ArrayList<CGQuestion>();
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        // Uses a cursor to query from the database.
-        // Provides the strings we want from the query and the query parameters
-        Cursor cursor = db.query(TABLE_ENTRIES, new String[] {
-                COLUMN_ID,
-                COLUMN_QUESTION,
-                COLUMN_TYPE,
-                //COLUMN_TABLE_PATH,
-                COLUMN_SUBQUESTION_ID
-        }
-                , null, null, null, null, null, null);
-
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                //change cursor.getString(4) into int[]
-                String subIDString = cursor.getString(4);
-
-                String[] str =subIDString.split(",");
-                int[] subIdInt = new int[str.length];
-                //loop
-                for (int i = 0;i<subIdInt.length; i++){
-                    subIdInt[i] = Integer.parseInt(str[i]);
-                }
-                CGQuestion tableEntry = new CGQuestion(
-                        Long.parseLong(cursor.getString(0)),    // ID
-                        cursor.getString(1),                    // Question
-                        cursor.getString(2),                    // Type
-                        cursor.getString(3),                    // table
-                        subIdInt                                //subquestion ID
-                );
-                // Adding contact to list
-                entryList.add(tableEntry);
-            } while (cursor.moveToNext());
-        }
-
-        db.close();
-        // return contact list
-        return entryList;
-    }
-  */
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////Count///////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Getting Question Count
     public int getQuestionCount() {
         String countQuery = "SELECT  * FROM " + TABLE_ENTRIES;
@@ -1260,47 +1268,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.delete(TABLE_HDATA_NAME, COLUMN_MAIND_ID + " = ? ", new String[]{String.valueOf(entry.getMqId())});
         db.close();
     }
-    public void insertHelp(SQLiteDatabase database) {
-        String Video11 = "INSERT INTO " + TABLE_HELP + " (" + COLUMN_MID + " ," + COLUMN_SID + " ," + COLUMN_TY + " ," + COLUMN_VALUE + " ," + COLUMN_IMAGE + ") VALUES(" +
-                "'1'," +
-                "'1'," +
-                "'video'," +
-                "'https://youtu.be/liFLl3Eh_HU'," +
-                "'none'" +
-                ")";
-        database.execSQL(Video11);
 
-        String Text11 = "INSERT INTO " + TABLE_HELP + " (" + COLUMN_MID + " ," + COLUMN_SID + " ," + COLUMN_TY + " ," + COLUMN_VALUE + " ," + COLUMN_IMAGE + ") VALUES(" +
-                "'1'," +
-                "'1'," +
-                "'text'," +
-                "'To find your independent variable you \n" +
-                "need to start by finding what two things \n" +
-                "you are comparing in this question. \n" +
-                "Here you are comparing how many snails \n" +
-                "cross the finish line with how many snails \n" +
-                "start. \n" +
-                "Variable 1: Number of Snails Who Finish \n" +
-                "the Race in 1 Minute \n" +
-                "Variable 2: Number of Snails Who Start the \n" +
-                "Race \n" +
-                "Now ask yourself which variable depends \n" +
-                "on the other. \n" +
-                "Does Variable 1 depend on Variable 2 \n" +
-                "OR\n" +
-                "Does Variable 2 depend on Variable 1 \n" +
-                "Here the number of snails who finish the race in 1 minute depends on the number of \n" +
-                "snails who start the race. \n" +
-                "So the number of snails who finish the race \n" +
-                "in 1 minute is the dependent variable as it \n" +
-                "depends on the other variable. \n" +
-                "The other variable, the number of snails \n" +
-                "who starts the race, is the independent \n" +
-                "variable. '," +
-                "'none'" +
-                ")";
-        database.execSQL(Text11);
-    }
     public void insertLevel2(SQLiteDatabase database){
         //Level 2/////////
         ////MainQ//////
@@ -2908,6 +2876,1809 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         database.execSQL(Data366);
 
     }
+    public void insertLevel3(SQLiteDatabase database){
+        ////MainQ//////
+        String MainQ8 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Level 3 Kerry and Kenda are thinking about the elephants that come to a local watering hole to bathe and drink.  Lately the watering hole has received little rain and the water level is low. They hypothesize that the lower the water level, the less elephants will come there to drink, believing that the elephants will go to another watering hole where there is more water.  They conduct a series of experiments over the course of three years to determine if the level of the water does in fact impact how many elephants visit the watering hole. '," +
+                "'Line'," +
+                "'Create'," +
+                "'3')";
+        String MainQ9 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Terry and Danny own a series of gyms.  Gym members are asked to wipe off the machine they use after they are done using it.  The next person doesn’t want to use a sweaty machine!  They’ve noticed, however, that lots of people don’t wipe off their machines.  They decide to put up signs around the gyms to try to encourage people to wipe off their machine.  They wonder, however, how many signs are enough to get people to actually act.  They decide to test this by putting up different amounts of signs in their gyms.  They ask their team members to track how many people wipe off their machines from 5:30 – 6:30pm.  This is the busiest time of day for the gym and almost every machine is in use, so they can assume there is a fairly even number of people in the gym at that time.'," +
+                "'Line'," +
+                "'Create'," +
+                "'3')";
+        String MainQ10 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Meghan and Hamilton are physiotherapists.  They specialize in dealing with injuries after auto-accidents, helping people to regain their mobility.  A significant number of their patients are on heavy pain medication after their accident.  The idea is to get patients off of the medication as quickly as possible, as the pain pills can be addictive and cause further problems down the road.  They want to determine if increasing the amount of time patients spend in the hot tub post physiotherapy can help decrease the amount of pain pills the patient chooses to take a day (patients take the pain pills as they feel they need them).  The test forty patients over the three days immediately following their accident. '," +
+                "'Line'," +
+                "'Create'," +
+                "'3')";
+        String MainQ11 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Students in Mr. Rose’s class are trying to build bridges using popsicle sticks.  The goal is to build the bridge that can hold the heaviest mass possible in the class. There is strong group competition to build the bridge that will hold the most!  Each group is given 38 popsicle sticks.  Mr. Rose keeps track of the number of popsicle sticks each group of students ends up using to build their final bridge and tracks how much mass that each bridge can ultimately carry, wondering if there is a relationship between the number of sticks and the mass.'," +
+                "'Line'," +
+                "'Create'," +
+                "'3')";
+        database.execSQL(MainQ8);
+        database.execSQL(MainQ9);
+        database.execSQL(MainQ10);
+        database.execSQL(MainQ11);
+        //options
+        String Option811 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'1'," +
+                "'Amount of Water in the Watering Hole (cm)'," +
+                "'T'," +
+                "'Correct!Great job!')";
+        database.execSQL(Option811);
+
+        String Option812 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'1'," +
+                "'Number of elephants who visit the Watering Hole per day'," +
+                "'F'," +
+                "'Oops.  That’s incorrect. The amount of water in the watering hole does not depend on the number of elephants who visit the watering hole per day.  It is the independent variable.  The number of elephants who visit per day depends on the amount of water in the watering hole, so it is the dependent variable.')";
+        database.execSQL(Option812);
+
+        String Option821 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.  The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option821);
+
+        String Option822 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option822);
+
+        String Option831 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was:X-Axis:" +
+                "Amount of Water in the Watering Hole (cm)\n"+
+                "Y-Axis:" +
+                "Number of Elephants who Visit the Watering Hole per Day\n" +
+                ".Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option831);
+
+        String Option841 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'4'," +
+                "'3.5'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option841);
+
+        String Option842 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'4'," +
+                "'4'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option842);
+
+        String Option843 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/Amount of water in the watering hole.  The highest number is 21." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (21) by the number of available boxes (6).  21÷6=3.5.  You can choose to use 3.5 as your interval or round it to 4.')";
+        database.execSQL(Option843);
+
+        String Option851 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'5'," +
+                "'2'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option851);
+
+        String Option852 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/number of elephants who visit the watering hole per day.  The highest number is 7." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (7) by the number of available boxes (6).  7÷6=1.16. You round this to 2 (note, 1.5 would be a possible contender, but you can’t have 1.5 elephants).')";
+        database.execSQL(Option852);
+
+        String Option861 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Number of Elephants who Visit the Watering Hole per Day by the Amount of Water in the Watering Hole (cm)." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?" +
+                "Have you told the reader of your graph exactly what the graph is about?')";
+        database.execSQL(Option861);
+
+        String Option871 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'7'," +
+                "'none'," +
+                "'T'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the amount of water (cm) in the watering hole) and the y value from the dependent variable (in this case the number of elephants who visit the watering hole per day). So your first point would be (7,5).')";
+        database.execSQL(Option871);
+
+        String Option881 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'8'," +
+                "'Based on the graph the higher the water level the more elephants come to the watering hole'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option881);
+
+        String Option882 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'8'," +
+                "'Based on the graph the lower the water level the more elephants will come to the watering hole.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option882);
+
+        String Option883 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'8'," +
+                "'8'," +
+                "'Based on the graph there is no relationship between how high the water level is in the watering hole and the number of elephants that will visit.'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option883);
+
+        //MainQ9
+        String Option911 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'1'," +
+                "'Number of People who Wipe off their Machine'," +
+                "'F'," +
+                "'Oops.  That’s incorrect. Number of signs does not depend on the number of people who wipe off their machine.  It is the independent variable.  The number of people who wipe off their machines depends on the number of signs, so it is the dependent variable.')";
+        database.execSQL(Option911);
+
+        String Option912 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'1'," +
+                "'Number of Signs'," +
+                "'T'," +
+                "'Correct! Good job.')";
+        database.execSQL(Option912);
+
+        String Option921 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option921);
+
+        String Option922 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option922);
+
+        String Option931 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Number of Signs\n" +
+                "Y-Axis:" +
+                "Number of People who Wipe off their Machines\n.  Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option931);
+
+        String Option941 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'4'," +
+                "'3'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option941);
+
+        String Option942 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/Number of Signs.  The highest number is 17.  \n" +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes.\n" +
+                "Divide your highest number (17) by the number of available boxes (6).  17÷6=2.8.  Round this number up to 3.\n')";
+        database.execSQL(Option942);
+
+        String Option951 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'5'," +
+                "'14'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option951);
+
+        String Option952 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'5'," +
+                "'15'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option952);
+
+        String Option953 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/number of people who wipe off their machines.  The highest number is 80.  \n" +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes.\n" +
+                "Divide your highest number (80) by the number of available boxes (6).  80÷6=13.33.  Round up.  You can choose either the first interval, 14, or an “easy” interval of 15. \n')";
+        database.execSQL(Option953);
+
+        String Option961 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Effect of Increased Number of Signs Asking People to Wipe off their Machines on the Number of People who Do Wipe their Machine off Measured Between 5:30-6:30pm, when Almost or All Machines are in Use." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?\n" +
+                "Have you told the reader of your graph exactly what the graph is about?\n')";
+        database.execSQL(Option961);
+
+        String Option971 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'7'," +
+                "'none'," +
+                "'F'," +
+                "'Oops!It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the number of signs) and the y value from the dependent variable (in this case the number of people who wipe off their machines).  So your first point would be (0,10).')";
+        database.execSQL(Option971);
+
+        String Option981 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'8'," +
+                "'Terry and Danny should post 8 signs in the area.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option981);
+
+        String Option982 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'8'," +
+                "'Terry and Danny should post 13 signs in the area'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option982);
+
+        String Option983 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'9'," +
+                "'8'," +
+                "'Terry and Danny should post 17 signs in the area'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option983);
+
+        //MainQ10
+        String Option1011 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'1'," +
+                "'Amount of Pain Pills Taken per Day on Average'," +
+                "'F'," +
+                "'Oops.That’s incorrect. The amount of pain pills taken per day depends on the number of signs, so it is the dependent variable.')";
+        database.execSQL(Option1011);
+
+        String Option1012 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'1'," +
+                "'Amount of Time in the Hot Tub After Physio (min)'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1012);
+
+        String Option1021= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1021);
+
+        String Option1022= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option1022);
+
+        String Option1031= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Amount of Time in the Hot Tub After Physio (min)\n" +
+                "Y-Axis:" +
+                "Amount of Pain Pills Taken per Day on Average\n.  Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option1031);
+
+        String Option1041= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'9'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1041);
+
+        String Option1042 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'10'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1042);
+
+        String Option1043 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/amount of time in the hot tub after physio (min).  The highest number is 50." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (50) by the number of available boxes (6).  50÷6=8.3.  Round this number up to 9. You could also round it up to the convenient number of 10.')";
+        database.execSQL(Option1043);
+
+        String Option1051 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'2.5'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1051);
+
+        String Option1052 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'3'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1052);
+
+        String Option1053 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/number of pain pills taken per day on average.  The highest number is 14." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (14) by the number of available boxes (6).  14÷6=2.3.  Round up.  You can choose either the first interval, 2.5, or an “easy” interval of 3.')";
+        database.execSQL(Option1053);
+
+        String Option1061= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Impact of Time Spent in Hot Tub (min) Post-Physiotherapy on the Average Number of Pain Pills Taken by Patients in the 3 Days Following an Auto-Accident as Tested on Forty Patients" +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?\n" +
+                "Have you told the reader of your graph exactly what the graph is about?\n')";
+        database.execSQL(Option1061);
+
+        String Option1071 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'7'," +
+                "'none'," +
+                "'T'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the amount of time in the hot tub (min)) and the y value from the dependent variable (in this case the average number of pills taken by the patient in the 3 days post-accident).  So your first point would be (0,14).')";
+        database.execSQL(Option1071);
+
+        String Option1081= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'Sitting in a hot tub  after physiotherapy has no impact on the amount of pain medication a patient takes in the days following their accident'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1081);
+
+        String Option1082 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'Meghan and Hamilton should recommend at least 40 minutes of sitting in a hot tub after physiotherapy in the three days following an accident'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option1082);
+
+        String Option1083= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'Meghan and Hamilton should recommend sitting in a hot tub at least 20 minutes after physiotherapy in the three days following an accident'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1083);
+        //MainQ11
+        String Option1111 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'1'," +
+                "'Mass the Bridge Holds (kg)'," +
+                "'F'," +
+                "'Oops.  That’s incorrect. The mass the bridge holds depends on the number of popsicle sticks used, so it is the dependent variable.')";
+        database.execSQL(Option1111);
+
+        String Option1112 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'1'," +
+                "'Number of Popsicle Sticks Used'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1112);
+
+        String Option1121= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1121);
+
+        String Option1122= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option1122);
+
+        String Option1131= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Number of Popsicle Sticks Used\n" +
+                "Y-Axis:" +
+                "Mass the Bridge Holds (kg)\n.  Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option1131);
+
+        String Option1141= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'6.5'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1141);
+
+        String Option1142 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'7'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1142);
+
+        String Option1143 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/number of popsicles used.  The highest number is 38.  \n" +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes.\n" +
+                "Divide your highest number (38) by the number of available boxes (6).  38÷6=6.3.  Round this number up to 6.5. You could also round it up to the convenient number of 7.\n')";
+        database.execSQL(Option1143);
+
+        String Option1151 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'5.5'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1151);
+
+        String Option1152 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'6'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1152);
+
+        String Option1153 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/mass the bridge holds.  The highest number is 31.  \n" +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes.\n" +
+                "Divide your highest number (31) by the number of available boxes (6).  31÷6=5.17.  Round up.  You can choose either the first interval, 5.5, or an “easy” interval of 6.\n')";
+        database.execSQL(Option1153);
+
+        String Option1161= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Amount of Mass a Bridge Can Hold (kg) Based on the Number of Popsicle Sticks Used to Build It." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?\n" +
+                "Have you told the reader of your graph exactly what the graph is about?\n')";
+        database.execSQL(Option1161);
+
+        String Option1171 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'7'," +
+                "'none'," +
+                "'T'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the amount of time in the hot tub (min)) and the y value from the dependent variable (in this case the average number of pills taken by the patient in the 3 days post-accident).  So your first point would be (27,22).')";
+        database.execSQL(Option1171);
+
+        String Option1181= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'There is no relationship between how many popsicle sticks are used to build the bridge and the amount of mass it can hold.'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option1181);
+
+        String Option1182 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'The more popsicle sticks used to build the bridge the more mass it can hold.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1182);
+
+        String Option1183= "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'10'," +
+                "'8'," +
+                "'The less popsicle sticks used to build the bridge the more mass it can hold. '," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1183);
+
+
+        //Heading
+        String heading15 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'8'," +
+                "'x'," +
+                "'Amount of Water in Watering Hole (cm)'" +
+                ")";
+        database.execSQL(heading15);
+
+        String heading16 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'8'," +
+                "'y'," +
+                "'Number of Elephants who Visit the Watering Hole per Day'" +
+                ")";
+        database.execSQL(heading16);
+
+        String heading17 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'9'," +
+                "'x'," +
+                "'Number of Signs'" +
+                ")";
+        database.execSQL(heading17);
+
+        String heading18 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'9'," +
+                "'y'," +
+                "'Number of People who Wipe off Their Machines'" +
+                ")";
+        database.execSQL(heading18);
+
+        String heading19 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'10'," +
+                "'x'," +
+                "'Amount of Time in the Hot Tub After Physio (min)'" +
+                ")";
+        database.execSQL(heading19);
+
+        String heading20 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'10'," +
+                "'y'," +
+                "'Amount of Pain Pills Taken per Day on Average'" +
+                ")";
+        database.execSQL(heading20);
+
+        String heading21 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'11'," +
+                "'x'," +
+                "'Number of Popsicle Sticks Used'" +
+                ")";
+        database.execSQL(heading21);
+
+        String heading22 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'11'," +
+                "'y'," +
+                "'Mass the Bridge Holds (kg)'" +
+                ")";
+        database.execSQL(heading22);
+
+
+        //Data
+        String Data8151 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'15'," +
+                "'1'," +
+                "'7'"+
+                ")";
+        database.execSQL(Data8151);
+
+        String Data8152 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'15'," +
+                "'2'," +
+                "'10'"+
+                ")";
+        database.execSQL(Data8152);
+
+        String Data8153 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'15'," +
+                "'3'," +
+                "'14'"+
+                ")";
+        database.execSQL(Data8153);
+
+        String Data8154 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'15'," +
+                "'4'," +
+                "'18'"+
+                ")";
+        database.execSQL(Data8154);
+
+        String Data8155 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'15'," +
+                "'5'," +
+                "'21'"+
+                ")";
+        database.execSQL(Data8155);
+
+        String Data8161 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'16'," +
+                "'1'," +
+                "'5'"+
+                ")";
+        database.execSQL(Data8161);
+
+        String Data8162 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'16'," +
+                "'2'," +
+                "'6'"+
+                ")";
+        database.execSQL(Data8162);
+
+        String Data8163 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'16'," +
+                "'3'," +
+                "'5'"+
+                ")";
+        database.execSQL(Data8163);
+
+        String Data8164 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'16'," +
+                "'4'," +
+                "'7'"+
+                ")";
+        database.execSQL(Data8164);
+
+        String Data8165 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'8'," +
+                "'16'," +
+                "'5'," +
+                "'4'"+
+                ")";
+        database.execSQL(Data8165);
+
+        //table 2
+        String Data9171 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'1'," +
+                "'0'"+
+                ")";
+        database.execSQL(Data9171);
+
+        String Data9172 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'2'," +
+                "'2'"+
+                ")";
+        database.execSQL(Data9172);
+
+        String Data9173 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'3'," +
+                "'5'"+
+                ")";
+        database.execSQL(Data9173);
+
+        String Data9174 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'4'," +
+                "'8'"+
+                ")";
+        database.execSQL(Data9174);
+
+        String Data9175 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'5'," +
+                "'11'"+
+                ")";
+        database.execSQL(Data9175);
+
+        String Data9176 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'6'," +
+                "'13'"+
+                ")";
+        database.execSQL(Data9176);
+
+        String Data9177 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'7'," +
+                "'14'"+
+                ")";
+        database.execSQL(Data9177);
+
+        String Data9178 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'17'," +
+                "'8'," +
+                "'17'"+
+                ")";
+        database.execSQL(Data9178);
+
+        String Data9181 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'1'," +
+                "'10'"+
+                ")";
+        database.execSQL(Data9181);
+
+        String Data9182 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'2'," +
+                "'12'"+
+                ")";
+        database.execSQL(Data9182);
+
+        String Data9183 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'3'," +
+                "'14'"+
+                ")";
+        database.execSQL(Data9183);
+
+        String Data9184 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'4'," +
+                "'30'"+
+                ")";
+        database.execSQL(Data9184);
+
+        String Data9185 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'5'," +
+                "'52'"+
+                ")";
+        database.execSQL(Data9185);
+
+        String Data9186 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'6'," +
+                "'77'"+
+                ")";
+        database.execSQL(Data9186);
+
+        String Data9187=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'6'," +
+                "'78'"+
+                ")";
+        database.execSQL(Data9187);
+
+        String Data9188=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'9'," +
+                "'18'," +
+                "'8'," +
+                "'80'"+
+                ")";
+        database.execSQL(Data9188);
+
+        //table3
+        String Data10191=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'1'," +
+                "'0'"+
+                ")";
+        database.execSQL(Data10191);
+
+        String Data10192 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'2'," +
+                "'10'"+
+                ")";
+        database.execSQL(Data10192);
+
+        String Data10193 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'3'," +
+                "'20'"+
+                ")";
+        database.execSQL(Data10193);
+
+        String Data10194 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'4'," +
+                "'30'"+
+                ")";
+        database.execSQL(Data10194);
+
+        String Data10195 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'5'," +
+                "'40'"+
+                ")";
+        database.execSQL(Data10195);
+
+        String Data10196=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'19'," +
+                "'6'," +
+                "'50'"+
+                ")";
+        database.execSQL(Data10196);
+
+        String Data10201=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'1'," +
+                "'14'"+
+                ")";
+        database.execSQL(Data10201);
+
+        String Data10202=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'2'," +
+                "'14'"+
+                ")";
+        database.execSQL(Data10202);
+
+        String Data10203=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'3'," +
+                "'8'"+
+                ")";
+        database.execSQL(Data10203);
+
+        String Data10204=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'4'," +
+                "'6'"+
+                ")";
+        database.execSQL(Data10204);
+
+        String Data10205=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'5'," +
+                "'4'"+
+                ")";
+        database.execSQL(Data10205);
+
+        String Data10206=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'10'," +
+                "'20'," +
+                "'6'," +
+                "'4'"+
+                ")";
+        database.execSQL(Data10206);
+
+        //table4
+
+        String Data11211=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'1'," +
+                "'27'"+
+                ")";
+        database.execSQL(Data11211);
+
+        String Data11212=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'2'," +
+                "'22'"+
+                ")";
+        database.execSQL(Data11212);
+
+        String Data11213=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'3'," +
+                "'35'"+
+                ")";
+        database.execSQL(Data11213);
+
+        String Data11214=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'4'," +
+                "'30'"+
+                ")";
+        database.execSQL(Data11214);
+
+        String Data11215=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'5'," +
+                "'24'"+
+                ")";
+        database.execSQL(Data11215);
+
+        String Data11216=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'21'," +
+                "'6'," +
+                "'38'"+
+                ")";
+        database.execSQL(Data11216);
+
+        String Data11221=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'1'," +
+                "'22'"+
+                ")";
+        database.execSQL(Data11221);
+
+        String Data11222=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'2'," +
+                "'31'"+
+                ")";
+        database.execSQL(Data11222);
+
+        String Data11223=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'3'," +
+                "'15'"+
+                ")";
+        database.execSQL(Data11223);
+
+        String Data11224=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'4'," +
+                "'26'"+
+                ")";
+        database.execSQL(Data11224);
+
+        String Data11225=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'5'," +
+                "'29'"+
+                ")";
+        database.execSQL(Data11225);
+
+        String Data11226=  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'11'," +
+                "'22'," +
+                "'6'," +
+                "'17'"+
+                ")";
+        database.execSQL(Data11226);
+
+    }
+
+    public void insertLevel4(SQLiteDatabase database){
+        //MainQ
+        String MainQ12 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Level 4 Amira and Echante are opening a brand new store and are trying to organize their shelves.  They want to place the most expensive products in locations where customers are most likely to see them and buy them.  They start off by placing their most expensive products right in the middle of the shelving, about 1.5 m off the ground.  Every two weeks they move the products up and down on the shelves and track how many sales of the product they have on average per day.'," +
+                "'Line'," +
+                "'Create'," +
+                "'4')";
+        String MainQ13 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Students are experimenting with building rockets in class.  Each group wants to build a rocket that will fly the highest.  In order to do this they have to make the rocket light and aerodynamic.  Their teacher, Mr. Daniel, keeps track of the mass of the rockets in grams and how high each rocket flies in meters, to demonstrate if there is a relationship between the two variables.'," +
+                "'Line'," +
+                "'Create'," +
+                "'4')";
+        String MainQ14 = "INSERT INTO "+TABLE_ENTRIES+ " ("+ COLUMN_QUESTION+","+COLUMN_TYPE+","+COLUMN_FUNCTION+","+COLUMN_GRADE +") VALUES(" +
+                "'Bob and Mark are trying to set up a school store that sells fair trade chocolate candies to support a charity.  Their principal has asked them to create a business plan that explains their products and where the money will be going to.  They are trying to decide what the best price is to sell what they think will be their most popular seller, the chocolate star-shaped lollipops. They want to sell them at a price that will cause students to buy a lot of them. Realizing that they will have to do some market research they decide to spend six weeks selling them at different prices at the local hockey team’s Thursday night games, and to track how many are sold each evening and which price sold the most.  '," +
+                "'Line'," +
+                "'Create'," +
+                "'4')";
+        database.execSQL(MainQ12);
+        database.execSQL(MainQ13);
+        database.execSQL(MainQ14);
+
+        //changed subquestion
+        String SubQ9 = "INSERT INTO "+TABLE_NAME+ " ("+ COLUMN_SUB_FUNCTION+","+COLUMN_SUB_TYPE+","+COLUMN_SUBQUESTION+","+COLUMN_OPTION_TYPE +") VALUES(" +
+                "'Create'," +
+                "'Line'," +
+                "'For this question, write which variable is the independent variable'," +
+                "'TextBox')";
+        database.execSQL(SubQ9);
+
+        //OPTION
+        String Option1291 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'9'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was Height of Shelves Product is Placed On (m).  Does your independent variable look similar?  If not, take a minute to review independent and dependent variables and correct your answer. ')";
+        database.execSQL(Option1291);
+
+        String Option1221 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option1221);
+
+        String Option1222 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1222);
+
+        String Option1231 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Height of Shelves Product is Placed On (m)\n" +
+                "Y-Axis:" +
+                "Number of Product Sold Per Day on Average\n.  Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option1231);
+
+        String Option1241 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'4'," +
+                "'0.6'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option1241);
+
+        String Option1242 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'4'," +
+                "'1'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1242);
+
+        String Option1243 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/height of shelves product is placed on (m). The highest number is 3.5." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (3.5) by the number of available boxes (6).  3.5÷6=0.583.  Round this number up to 0.6. You could also round it up to the convenient number of 1.')";
+        database.execSQL(Option1243);
+
+        String Option1251 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'5'," +
+                "'88'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1251);
+
+        String Option1252 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'5'," +
+                "'90'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option1252);
+
+        String Option1253 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/number of product sold per day on average.  The highest number is 523." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (523) by the number of available boxes (6).  523÷6=87.17.  Round up.  You can choose either the first interval, 88, or an “easy” interval of 90.')";
+        database.execSQL(Option1253);
+
+        String Option1261 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Number of Product Sold on Average as Measured over a Two Week Period Based on Height of Shelving (m) that the Product is Placed On." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?" +
+                "Have you told the reader of your graph exactly what the graph is about?')";
+        database.execSQL(Option1261);
+
+        String Option1271 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'7'," +
+                "'none'," +
+                "'F'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the height of the shelving (m)) and the y value from the dependent variable (in this case the number of product sold on average).  So your first point would be (1.5, 523).')";
+        database.execSQL(Option1271);
+
+        String Option1281 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'8'," +
+                "'The height of the shelving has no impact on the number of product sold.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1281);
+
+        String Option1282 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'8'," +
+                "'Amira and Echante should put their product on shelving 3.5m high.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1282);
+
+        String Option1283 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'8'," +
+                "'Amira and Echante should put their product on shelving at 1.5 m high.'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option1283);
+
+        String Option1284 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'12'," +
+                "'8'," +
+                "'Amira and Echante should put their product on shelving 2 m high.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1284);
+
+        String Option1391 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'9'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was Mass of the Rocket (g).  Does your independent variable look similar?  If not, take a minute to review independent and dependent variables and correct your answer. ')";
+        database.execSQL(Option1391);
+
+        String Option1321 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.  The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option1321);
+
+        String Option1322 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Well done.')";
+        database.execSQL(Option1322);
+
+        String Option1331 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Mass of the Rocket (g):" +
+                "Y-Axis:" +
+                "Height of Rocket’s Flight (m).Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option1331);
+
+        String Option1341 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'4'," +
+                "'133'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1341);
+
+        String Option1342 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'4'," +
+                "'140'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1342);
+
+        String Option1343 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'4'," +
+                "'150'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1343);
+
+        String Option1344 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/mass of the rocket (g). The highest number is 797." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (797) by the number of available boxes (6).  797÷6=132.83.  Round this number up to 133. You could also round it up to the convenient numbers of 140 or 150.')";
+        database.execSQL(Option1344);
+
+        String Option1351 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'5'," +
+                "'5.1'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1351);
+
+        String Option1352 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'5'," +
+                "'6'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1352);
+
+        String Option1353 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/height of rocket’s flight.  The highest number is 30.2." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (30.2) by the number of available boxes (6).  30.2÷6=5.03.  Round up.  You can choose either the first interval, 5.1, or an “easy” interval of 6.')";
+        database.execSQL(Option1353);
+
+        String Option1361 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Impact of Mass of a Rocket (g) on the Height of its Flight (m)." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?" +
+                "Have you told the reader of your graph exactly what the graph is about?')";
+        database.execSQL(Option1361);
+
+        String Option1371 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'7'," +
+                "'none'," +
+                "'F'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the height of the shelving (m)) and the y value from the dependent variable (in this case the number of product sold on average).  So your first point would be (520, 18.6).')";
+        database.execSQL(Option1371);
+
+        String Option1381 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'8'," +
+                "'There seems to be no relationship between mass of the rocket and height of its flight'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option1381);
+
+        String Option1382 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'13'," +
+                "'8'," +
+                "'The heavier the rocket the less height it attains during flight.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1382);
+
+        //MainQ4
+        String Option1491 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'9'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was Price of the Lollipop ($).  Does your independent variable look similar?  If not, take a minute to review independent and dependent variables and correct your answer. ')";
+        database.execSQL(Option1491);
+
+        String Option1421 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'2'," +
+                "'The y-axis'," +
+                "'T'," +
+                "'Great job!')";
+        database.execSQL(Option1421);
+
+        String Option1422 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'2'," +
+                "'The x-axis'," +
+                "'F'," +
+                "'Oops.The independent variable is placed on the x-axis.  The dependent variable is placed on the y.')";
+        database.execSQL(Option1422);
+
+        String Option1431 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'3'," +
+                "'none'," +
+                "'T'," +
+                "'The answer we had was X-Axis:" +
+                "Price of the Lollipop ($);" +
+                "Y-Axis:" +
+                "Number of Lollipops Sold.Do your axes labels look similar?  Have you capitalized key words?  Have you placed units in brackets after the axes label?  Have you placed arrows at the end of each axis? Take a moment to correct your axes labels if you think changes need to be made.')";
+        database.execSQL(Option1431);
+
+        String Option1441 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'4'," +
+                "'0.23'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1441);
+
+        String Option1442 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'4'," +
+                "'0.25'," +
+                "'T'," +
+                "'Great job! You’re correct.')";
+        database.execSQL(Option1342);
+
+        String Option1443 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'4'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the independent variable/x-axis/price of the lollipop. The highest number is 1.35." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (1.35) by the number of available boxes (6). 1.35÷6=0.225.  Round this number up to 0.23. You could also round it up to the convenient numbers of 0.25.')";
+        database.execSQL(Option1443);
+
+        String Option1451 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'5'," +
+                "'18'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1451);
+
+        String Option1452 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'5'," +
+                "'20'," +
+                "'T'," +
+                "'Great job! You’re correct. ')";
+        database.execSQL(Option1452);
+
+        String Option1453 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'5'," +
+                "'-1'," +
+                "'F'," +
+                "'Oops.  That is incorrect.  Look at your table and find the highest number for the dependent variable/y-axis/number of lollipops sold.  The highest number is 104." +
+                "Now count the number of boxes on your graph.  You have 8 boxes.  Subtract 2 from this number.  This is your number of available boxes." +
+                "Divide your highest number (104) by the number of available boxes (6).  104÷6=17.33.  Round up.  You can choose either the first interval, 18 (remember, you can’t have 17.33 of a lollipop, so round to the nearest whole number, or an “easy” interval of 20.')";
+        database.execSQL(Option1453);
+
+        String Option1461 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'6'," +
+                "'none'," +
+                "'T'," +
+                "'Titles can be tricky to write.  Check your title against the one we wrote for this question Graph A: Number of Fair-Trade Chocolate Star-Shaped Lollipops Sold over a 6 Week Period at Local Hockey Games as Market Research to Determine the Best Price for the Lollipops ($)." +
+                "Did your title begin “Graph A:”?" +
+                "Are key words capitalized?  Have you included the units in brackets?" +
+                "Have you told the reader of your graph exactly what the graph is about?')";
+        database.execSQL(Option1461);
+
+        String Option1471 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'7'," +
+                "'none'," +
+                "'F'," +
+                "'Oops!  It seems like your point doesn’t belong here.  Remember to use your table to create an (x,y) point.  The x value comes from the independent variable (in this case the price of the lollipop) and the y value from the dependent variable (in this case the number of lollipop’s sold).  So your first point would be (0.50, 27).')";
+        database.execSQL(Option1471);
+
+        String Option1481 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'8'," +
+                "'There is no best price for the lollipops, so Bob and Mark should sell them at the highest price.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1481);
+
+        String Option1482 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'8'," +
+                "'The lollipop’s should cost $1.20.'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1482);
+
+        String Option1483 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'8'," +
+                "'The lollipop’s should cost $1.25.'," +
+                "'T'," +
+                "'Correct!')";
+        database.execSQL(Option1483);
+
+        String Option1484 = "INSERT INTO "+TABLE_OPTION_NAME+ " ("+ COLUMN_MAINQ_ID+","+COLUMN_SUBQ_ID+","+COLUMN_OPTION_VALUE+","+COLUMN_ANSWER +","+COLUMN_EXPLAIN+") VALUES(" +
+                "'14'," +
+                "'8'," +
+                "'The lollipop’s should cost $0.50'," +
+                "'F'," +
+                "'Incorrect!')";
+        database.execSQL(Option1484);
+
+        //Heading
+        String heading23 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'12'," +
+                "'x'," +
+                "'Height of Shelves Product is Placed On (m)'" +
+                ")";
+        database.execSQL(heading23);
+
+        String heading24 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'12'," +
+                "'y'," +
+                "'Number of Products Sold Per Day on Average'" +
+                ")";
+        database.execSQL(heading24);
+
+        String heading25 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'13'," +
+                "'x'," +
+                "'Mass of the Rocket (g)'" +
+                ")";
+        database.execSQL(heading25);
+
+        String heading26 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'13'," +
+                "'y'," +
+                "'Height of Rocket’s Flight (m)'" +
+                ")";
+        database.execSQL(heading26);
+
+        String heading27 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'14'," +
+                "'x'," +
+                "'Price of the Lollipop ($)'" +
+                ")";
+        database.execSQL(heading27);
+
+        String heading28 =  "INSERT INTO "+TABLE_HEADING_NAME+ " ("+ COLUMN_MAINQH_ID+","+COLUMN_HEADING_AXIS+","+COLUMN_HEADING+") VALUES(" +
+                "'14'," +
+                "'y'," +
+                "'Number of Lollipop’s Sold'" +
+                ")";
+        database.execSQL(heading28);
+        //table1
+        String Data12231 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'1'," +
+                "'1.5'"+
+                ")";
+        database.execSQL(Data12231);
+
+        String Data12232 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'2'," +
+                "'3'"+
+                ")";
+        database.execSQL(Data12232);
+
+        String Data12233 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'3'," +
+                "'2'"+
+                ")";
+        database.execSQL(Data12233);
+
+        String Data12234 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'4'," +
+                "'0.5'"+
+                ")";
+        database.execSQL(Data12234);
+
+        String Data12235 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'5'," +
+                "'1'"+
+                ")";
+        database.execSQL(Data12235);
+
+        String Data12236 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'23'," +
+                "'6'," +
+                "'3.5'"+
+                ")";
+        database.execSQL(Data12236);
+
+        String Data12241 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'1'," +
+                "'523'"+
+                ")";
+        database.execSQL(Data12241);
+
+        String Data12242 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'2'," +
+                "'178'"+
+                ")";
+        database.execSQL(Data12242);
+
+        String Data12243 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'3'," +
+                "'404'"+
+                ")";
+        database.execSQL(Data12243);
+
+        String Data12244 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'4'," +
+                "'97'"+
+                ")";
+        database.execSQL(Data12244);
+
+        String Data12245 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'5'," +
+                "'118'"+
+                ")";
+        database.execSQL(Data12245);
+
+        String Data12246 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'12'," +
+                "'24'," +
+                "'6'," +
+                "'15'"+
+                ")";
+        database.execSQL(Data12246);
+        //table 2
+        String Data13251 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'1'," +
+                "'520'"+
+                ")";
+        database.execSQL(Data13251);
+
+        String Data13252 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'2'," +
+                "'660'"+
+                ")";
+        database.execSQL(Data13252);
+
+        String Data13253 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'3'," +
+                "'170'"+
+                ")";
+        database.execSQL(Data13253);
+
+        String Data13254 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'4'," +
+                "'293'"+
+                ")";
+        database.execSQL(Data13254);
+
+        String Data13255 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'5'," +
+                "'797'"+
+                ")";
+        database.execSQL(Data13255);
+
+        String Data13256 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'25'," +
+                "'6'," +
+                "'435'"+
+                ")";
+        database.execSQL(Data13256);
+
+        String Data13261 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'1'," +
+                "'18.6'"+
+                ")";
+        database.execSQL(Data13261);
+
+        String Data13262 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'2'," +
+                "'19.2'"+
+                ")";
+        database.execSQL(Data13262);
+
+        String Data13263 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'3'," +
+                "'10.2'"+
+                ")";
+        database.execSQL(Data13263);
+
+        String Data13264 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'4'," +
+                "'30.2'"+
+                ")";
+        database.execSQL(Data13264);
+
+        String Data13265 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'5'," +
+                "'11.3'"+
+                ")";
+        database.execSQL(Data13265);
+
+        String Data13266 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'13'," +
+                "'26'," +
+                "'6'," +
+                "'25.2'"+
+                ")";
+        database.execSQL(Data13266);
+        //table 3
+        String Data14271 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'1'," +
+                "'0.50'"+
+                ")";
+        database.execSQL(Data14271);
+
+        String Data14272 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'2'," +
+                "'0.65'"+
+                ")";
+        database.execSQL(Data14272);
+
+        String Data14273 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'3'," +
+                "'0.90'"+
+                ")";
+        database.execSQL(Data14273);
+
+        String Data14274 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'4'," +
+                "'1.20'"+
+                ")";
+        database.execSQL(Data14274);
+
+        String Data14275 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'5'," +
+                "'1.25'"+
+                ")";
+        database.execSQL(Data14275);
+
+        String Data14276 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'27'," +
+                "'6'," +
+                "'1.35'"+
+                ")";
+        database.execSQL(Data14276);
+
+        String Data14281 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'1'," +
+                "'27'"+
+                ")";
+        database.execSQL(Data14281);
+
+        String Data14282 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'2'," +
+                "'42'"+
+                ")";
+        database.execSQL(Data14282);
+
+        String Data14283 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'3'," +
+                "'67'"+
+                ")";
+        database.execSQL(Data14283);
+
+        String Data14284 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'4'," +
+                "'92'"+
+                ")";
+        database.execSQL(Data14284);
+
+        String Data14285 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'5'," +
+                "'104'"+
+                ")";
+        database.execSQL(Data14285);
+
+        String Data14286 =  "INSERT INTO "+TABLE_HDATA_NAME + " ("+ COLUMN_MAIND_ID+","+COLUMN_HEADINGD_ID+","+COLUMN_ORDER+","+COLUMN_DATA+") VALUES(" +
+                "'14'," +
+                "'28'," +
+                "'6'," +
+                "'63'"+
+                ")";
+        database.execSQL(Data14286);
+
+    }
+
+
     public static Help getTextHelp(long mid, long sid){
         SQLiteDatabase db = databaseHandler.getReadableDatabase();
 
@@ -2946,7 +4717,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 Long.parseLong(cursor.getString(1)),    //sid
                 cursor.getString(2),                    //type
                 cursor.getString(3),                    //value
-                cursor.getBlob(4)
+                cursor.getBlob(4)                       //blob
         );
 
         db.close();
@@ -2974,7 +4745,71 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return help;
     }
+    public void insertHelp(SQLiteDatabase database) {
+        String Video11 = "INSERT INTO " + TABLE_HELP + " (" + COLUMN_MID + " ," + COLUMN_SID + " ," + COLUMN_TY + " ," + COLUMN_VALUE + " ," + COLUMN_IMAGE + ") VALUES(" +
+                "'1'," +
+                "'1'," +
+                "'video'," +
+                "'https://youtu.be/liFLl3Eh_HU'," +
+                "'none'" +
+                ")";
+        database.execSQL(Video11);
 
+        String Text11 = "INSERT INTO " + TABLE_HELP + " (" + COLUMN_MID + " ," + COLUMN_SID + " ," + COLUMN_TY + " ," + COLUMN_VALUE + " ," + COLUMN_IMAGE + ") VALUES(" +
+                "'1'," +
+                "'1'," +
+                "'text'," +
+                "'To find your independent variable you " +
+                "need to start by finding what two things " +
+                "you are comparing in this question. " +
+                "Here you are comparing how many snails " +
+                "cross the finish line with how many snails " +
+                "start. " +
+                "Variable 1: Number of Snails Who Finish " +
+                "the Race in 1 Minute " +
+                "Variable 2: Number of Snails Who Start the " +
+                "Race " +
+                "Now ask yourself which variable depends " +
+                "on the other. " +
+                "Does Variable 1 depend on Variable 2 " +
+                "OR" +
+                "Does Variable 2 depend on Variable 1 " +
+                "Here the number of snails who finish the race in 1 minute depends on the number of " +
+                "snails who start the race. " +
+                "So the number of snails who finish the race " +
+                "in 1 minute is the dependent variable as it " +
+                "depends on the other variable. " +
+                "The other variable, the number of snails " +
+                "who starts the race, is the independent " +
+                "variable. '," +
+                "'none'" +
+                ")";
+        database.execSQL(Text11);
+
+        Bitmap image11 = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.first);
+        insertImage(1, 1, image11, database);
+
+        //Help2
+
+    }
+
+    public void insertImage(long mid,long sid,Bitmap bitmap,SQLiteDatabase database){
+        //change bitmap into byte[]
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,0,bs);
+        byte[] data = bs.toByteArray();
+        //insert into the database
+        //SQLiteDatabase db = databaseHandler.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_MID,mid);
+        cv.put(COLUMN_SID,sid);
+        cv.put(COLUMN_TY,"image");
+        cv.put(COLUMN_VALUE,"none");
+        cv.put(COLUMN_IMAGE, data);
+
+        database.insert(TABLE_HELP, null, cv);
+
+    }
 
 
 }

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">GraphMaster</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_reading">ReadingActivity</string>
+    <string name="title_activity_line_graph">LineGraphActivity</string>
+    <string name="title_activity_draw_graph">DrawGraphActivity</string>
+    <string name="video">video</string>
+    <string name="tutorial">tutorial</string>
+    <string name="title_activity_show_text">ShowTextActivity</string>
+</resources>
