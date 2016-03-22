@@ -2205,7 +2205,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String marks = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
                 "'7','6')";
         String marks7 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
-                "'7','2')";
+                "'7','0.5')";
         String marks8 = "INSERT INTO "+TABLE_NAME_MARK+ " ("+ COLUMN_SUBQ_ID_MARK+","+COLUMN_WEIGHT+") VALUES(" +
                 "'8','2')";
         database.execSQL(marks1);

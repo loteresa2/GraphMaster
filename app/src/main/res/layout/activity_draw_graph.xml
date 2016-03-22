@@ -137,6 +137,7 @@
                 android:id="@+id/table"
                 android:padding="10dp"
                 android:shrinkColumns="*"
+                android:background="#ECEFF1"
                 android:stretchColumns="*">
             </TableLayout>
 

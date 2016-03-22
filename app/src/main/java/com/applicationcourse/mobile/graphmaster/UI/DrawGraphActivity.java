@@ -334,7 +334,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                         //Reset the subquestion count back to zero
                         //Check the progress before proceeding
                         int mainid = (int)currentQ.getMqId();
-                        String progress = DatabaseHandler.getProgressResult(1,mainid, "create", 1, time, "00:01:00");
+                        String progress = DatabaseHandler.getProgressResult(1,mainid, "create", grade, time, "00:07:00");
                         if (progress.equals("continueSmeLevel")) {
                             if (qid >= (mainQuesList.size()-1)) {
                                 qid = 0;
@@ -351,8 +351,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             grade++;
                             qid = 0;
                             getQuestions(grade);
-                            //Get  x and y axis value as points
-                            pointList = DatabaseHandler.getAllHeadingData((int) currentQ.getMqId());
                             setQuestionView();
                             btnSubmit.setEnabled(true);
                         }else if (progress.equals("promoteLevel")) {
@@ -1010,7 +1008,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         //set the header of the table
         TableRow rowHeader = new TableRow(this);
         rowHeader.setId(0);
-        rowHeader.setBackgroundColor(Color.GRAY);
+        rowHeader.setBackgroundColor(Color.parseColor("#ff5050"));
         for (int x = 0; x< colNum;x++){
             TextView headerName = new TextView(this);
             headerName.setId(0 + i);
@@ -1025,6 +1023,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             TableRow tableRow = new TableRow(this);
             for (int y = 0;y<colNum;y++){
                 TextView textView = new TextView(this);
+                textView.setBackgroundColor(Color.WHITE);
+                if(x%2!=0) {
+                    textView.setBackgroundColor(Color.parseColor("#c2c2a3"));
+                }
                 textView.setId(0+i);
                 textView.setText(currentQ.getMainQuesHeadList().get(y).getMainQuesHDataList().get(x).getData());
                 tableRow.addView(textView);
