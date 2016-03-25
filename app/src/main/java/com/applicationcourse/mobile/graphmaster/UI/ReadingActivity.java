@@ -75,7 +75,7 @@ public class ReadingActivity extends AppCompatActivity {
             //set the subquestion
             main.setSubQuestionList(subQuestionList);
         }
-        txtQuestion=(TextView)findViewById(R.id.webMainQues);
+        txtQuestion=(TextView)findViewById(R.id.txtMainQues);
         txtSubQues=(TextView)findViewById(R.id.txtSubQues);
        // txtOptions=(TextView)findViewById(R.id.txtOptions);
 

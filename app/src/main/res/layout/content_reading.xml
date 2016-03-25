@@ -29,7 +29,7 @@
                 android:layout_width="fill_parent" android:layout_height="wrap_content"
                 />
             <TextView
-                android:id="@+id/webMainQues"
+                android:id="@+id/txtMainQues"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Question Here?"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sub Question Here?"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:layout_below="@id/webMainQues"/>
+                android:layout_below="@id/txtMainQues"/>
 
             <RadioGroup
                 android:id="@+id/radioSetupSel"

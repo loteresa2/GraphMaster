@@ -614,7 +614,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor != null)
             cursor.moveToFirst();
 
-        for (int i = 0; i < cursor.getCount(); i++) {
+        for (int i = 0; i < cursor.getCount()-1; i++) {
             SubQuestion entry = new SubQuestion(
                     Long.parseLong(cursor.getString(0)),    // ID
                     cursor.getString(1),                    // Type
@@ -1027,9 +1027,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return totalScore;
     }
     public static String getProgressResult(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
-        return "nextLevel";
+            if(level == 2){
+                return "promoteLevel";
+            }else if(level == 4){
+                return "lowerLevel";
+            }
+        return "continueSmeLevel";
     }
-    //Get Progress Data row value from db
+        //Get Progress Data row value from db
     public static String getProgressResult1(int studId,int mainId,String function, int level,String timeTaken,String timeThreshold) {
         // Uses a cursor to query from the database.
         // Provides the strings we want from the query and the query parameters
@@ -1061,9 +1066,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.moveToFirst();
                 score = Float.parseFloat(cursor.getString(0));
                 //10% mistake
-                float lessMistake = (float)(.1 *total);
-                float mediumMistake = (float)(.3 *total);
-                float moreMistake = (float)(.5 *total);
+                float lessMistake = (float)(total);
+                float mediumMistake = (float)(.15 *total);
+                float moreMistake = (float)(.60 *total);
                 if ((score) <= lessMistake) {
                     db.close();
                     return "promoteLevel";

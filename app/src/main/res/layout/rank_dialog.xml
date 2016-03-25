@@ -19,6 +19,7 @@
         android:theme="@style/RatingBar"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:clickable="true"
+        android:rating="1"
         android:id="@+id/dialog_ratingbar" android:layout_gravity="center"
         android:numStars="3" android:stepSize="1.0"
         android:isIndicator="false"/>

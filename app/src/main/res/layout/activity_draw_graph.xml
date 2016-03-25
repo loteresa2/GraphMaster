@@ -128,17 +128,17 @@
                 android:id="@+id/webMainQues"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:text="Question Here?"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
             <TableLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/table"
-                android:padding="10dp"
-                android:shrinkColumns="*"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:shrinkColumns="1,2"
                 android:background="#ECEFF1"
-                android:stretchColumns="*">
+                android:stretchColumns="1,2">
             </TableLayout>
 
             <TextView
@@ -168,18 +168,20 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_below="@+id/radioSetupSel"/>
-            <Button
-                android:id="@+id/btnSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Submit"
-                android:layout_below="@+id/txtExpl"/>
-            <Button
-                android:id="@+id/btnNext"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Next"
-                android:layout_below="@+id/btnSubmit"/>
+
+            <com.dd.CircularProgressButton
+                android:id="@+id/circularButton1"
+                android:layout_width="196dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:textColor="@color/cpb_white"
+                android:textSize="18sp"
+                app:cpb_textComplete="Complete"
+                app:cpb_textError="Error"
+                android:layout_below="@+id/txtExpl"
+                app:cpb_textIdle="Submit" />
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

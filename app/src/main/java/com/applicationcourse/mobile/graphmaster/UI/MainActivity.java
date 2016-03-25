@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.andexert.library.RippleView;
 import com.applicationcourse.mobile.graphmaster.Database.DatabaseHandler;
 import com.applicationcourse.mobile.graphmaster.Database.MainQues;
 import com.applicationcourse.mobile.graphmaster.Database.MainQuesHData;
@@ -33,46 +34,84 @@ public class MainActivity extends Activity {
         //initialization
         databaseHandler = DatabaseHandler.getHandler(mContext);
         DatabaseHandler.deleteDatabase();
-        Button btnRead = (Button) findViewById(R.id.btnLevel2);
-        Button btnCreate = (Button) findViewById(R.id.btnLevel1);
-        Button btnOwn = (Button) findViewById(R.id.btnLevel3);
-        Button btnlevel4 = (Button) findViewById(R.id.btnLevel4);
-        Button LoadDB = (Button)findViewById(R.id.btnLoadDB);
-        LoadDB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               // LoadDatabase(mContext);
-            }
-        });
-        btnRead.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              List<MainQues> list = DatabaseHandler.getAllMainQVal("Create", "Line", 1);
-            }
-        });
 
-        btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, DrawGraphActivity.class);
-                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
-        btnlevel4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        btnOwn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),"Not yet implemented",Toast.LENGTH_SHORT).show();
+        final RippleView rippleView = (RippleView)findViewById(R.id.level1);
+        final RippleView rippleView2 = (RippleView)findViewById(R.id.level2);
+        final RippleView rippleView3 = (RippleView)findViewById(R.id.level3);
+        final RippleView rippleView4 = (RippleView)findViewById(R.id.level4);
 
 
-            }
-        });
+        rippleView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                }
+        );
+        rippleView.setOnRippleCompleteListener(
+                new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+
+                        Intent intent = new Intent(MainActivity.this, DrawGraphActivity.class);
+                        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }
+                }
+        );
+
+        rippleView2.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                }
+        );
+        rippleView2.setOnRippleCompleteListener(
+                new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+                        List<MainQues> list = DatabaseHandler.getAllMainQVal("Create", "Line", 1);
+                    }
+                }
+        );
+
+        rippleView3.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                }
+        );
+        rippleView3.setOnRippleCompleteListener(
+                new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+                        Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        rippleView4.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                }
+        );
+        rippleView4.setOnRippleCompleteListener(
+                new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+                          }
+                }
+        );
+
+
 
     }
     @Override
