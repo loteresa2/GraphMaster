@@ -4445,7 +4445,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "'12'," +
                 "'24'," +
                 "'1'," +
-                "'523'"+
+                "'520'"+
                 ")";
         database.execSQL(Data12241);
 
@@ -4453,7 +4453,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "'12'," +
                 "'24'," +
                 "'2'," +
-                "'178'"+
+                "'180'"+
                 ")";
         database.execSQL(Data12242);
 
@@ -4461,7 +4461,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "'12'," +
                 "'24'," +
                 "'3'," +
-                "'404'"+
+                "'450'"+
                 ")";
         database.execSQL(Data12243);
 
@@ -4469,7 +4469,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "'12'," +
                 "'24'," +
                 "'4'," +
-                "'97'"+
+                "'90'"+
                 ")";
         database.execSQL(Data12244);
 
@@ -4485,7 +4485,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "'12'," +
                 "'24'," +
                 "'6'," +
-                "'15'"+
+                "'90'"+
                 ")";
         database.execSQL(Data12246);
         //table 2

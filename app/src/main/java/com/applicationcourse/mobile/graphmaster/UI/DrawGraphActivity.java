@@ -124,7 +124,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         pictureButton = (ImageButton)findViewById(R.id.ImageButton);
         seekRelative = (RelativeLayout) findViewById(R.id.seekLayout);
         //Yolanda
-        final CircularProgressButton circularButton1 = (CircularProgressButton)findViewById(R.id.circularButton1);
+        final CircularProgressButton nxtCirButton = (CircularProgressButton)findViewById(R.id.circularButton1);
         //first the seek bar can not be moved
         seekBarY.setEnabled(false);
         seekBarX.setEnabled(false);
@@ -142,7 +142,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         setQuestionView();
         paint.setTextSize(30);
         //Yolanda
-        circularButton1.setOnClickListener(
+        nxtCirButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -166,8 +166,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                             if (subid == 3) {
                                 if ((checkXLabel == true) && (checkYLabel == true)) {
                                     //Yolanda
-                                    if (circularButton1.getProgress() == 0 ){
-                                        simulateSuccessProgress(circularButton1);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateSuccessProgress(nxtCirButton);
 
                                         List<String> answerList1 = DatabaseHandler.getExemplar(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
                                         String corectLabelEx = answerList1.get(0);
@@ -183,7 +183,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                         dialog.dismiss();
                                                         rankDialog.setContentView(R.layout.rank_dialog);
                                                         rankDialog.setCancelable(false);//Yolanda
-                                                        final RatingBar ratingBar = (RatingBar)rankDialog.findViewById(R.id.dialog_ratingbar);
+                                                        final RatingBar ratingBar = (RatingBar) rankDialog.findViewById(R.id.dialog_ratingbar);
                                                         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                                                             public void onRatingChanged(RatingBar ratingBar, float rating,
                                                                                         boolean fromUser) {
@@ -198,7 +198,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                                 score += (marksList[subid - 1]) / point;
                                                                 //TODO: add next code
                                                                 rankDialog.dismiss();
-                                                                circularButton1.setProgress(0);
+                                                                nxtCirButton.setProgress(0);
                                                                 Next();//Yolanda
                                                             }
                                                         });
@@ -215,7 +215,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                     public void onClick(MaterialDialog dialog, DialogAction which) {
                                                         dialog.dismiss();
                                                         //redraw the whole graph
-                                                        circularButton1.setProgress(0);
+                                                        nxtCirButton.setProgress(0);
                                                         generateGridLines();
                                                         drawAxes();
                                                         paint.setTextSize(30);
@@ -228,13 +228,13 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                         mb.cancelable(false);
                                         mb.canceledOnTouchOutside(false);
                                         mb.show();
-                                    }else{
-                                        circularButton1.setProgress(0);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
                                 } else {
 
-                                    if (circularButton1.getProgress() == 0 ){
-                                        simulateErrorProgress(circularButton1);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateErrorProgress(nxtCirButton);
 
                                         new MaterialDialog.Builder(DrawGraphActivity.this)
                                                 .title("Oops")
@@ -245,24 +245,29 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                             @Override
                                                             public void onClick(MaterialDialog dialog, DialogAction which) {
                                                                 dialog.dismiss();
-                                                                circularButton1.setProgress(0);
+                                                                nxtCirButton.setProgress(0);
                                                             }
                                                         }
                                                 )
                                                 .show();
-                                    }else{
-                                        circularButton1.setProgress(0);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
 
                                 }
                             } else if (subid == 4 || subid == 5) {
+                                //pull calculator
+                                    Intent i = new Intent();
+                                    i.setAction(Intent.ACTION_MAIN);
+                                    i.addCategory(Intent.CATEGORY_APP_CALCULATOR);
+                                    startActivity(i);
                                 //Checking for the input value for interval
                                 if (answerList.contains(inputTxt)) {
                                     //Yolanda
-                                    if (circularButton1.getProgress() == 0 ){
-                                        simulateSuccessProgress(circularButton1);
-                                    }else{
-                                        circularButton1.setProgress(0);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateSuccessProgress(nxtCirButton);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
                                     if (subid == 4) { //Teresa added
                                         xMultiple = Float.parseFloat(inputTxt);
@@ -279,7 +284,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                         public void onClick(MaterialDialog dialog, DialogAction which) {
                                                             //Yolanda
                                                             dialog.dismiss();
-                                                            circularButton1.setProgress(0);
+                                                            nxtCirButton.setProgress(0);
                                                             Next();
 
                                                         }
@@ -289,8 +294,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                     //display the explanation
                                 } else {
                                     //Yolanda
-                                    if (circularButton1.getProgress()==0){
-                                        simulateErrorProgress(circularButton1);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateErrorProgress(nxtCirButton);
                                         String optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), subid, "-1");
                                         new MaterialDialog.Builder(DrawGraphActivity.this)
                                                 .content(optionExpl)
@@ -302,7 +307,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                                 //Yolanda
                                                                 editTextDyn.setText("");
                                                                 dialog.dismiss();
-                                                                circularButton1.setProgress(0);
+                                                                nxtCirButton.setProgress(0);
 
                                                             }
                                                         }
@@ -310,25 +315,25 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                 .show();
                                         Toast.makeText(getBaseContext(), "Enter the interval", Toast.LENGTH_SHORT).show();
                                         noOfWrong++;
-                                    }else {
-                                        circularButton1.setProgress(0);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
                                 }
                             } else if (subid == 6) {
                                 txtTitle = (TextView) findViewById(R.id.txtTitle);
                                 if (txtTitle.getText().length() == 0) {
-                                    if (circularButton1.getProgress()==0){
-                                        simulateErrorProgress(circularButton1);
-                                        circularButton1.setProgress(0);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateErrorProgress(nxtCirButton);
+                                        nxtCirButton.setProgress(0);
                                         Toast.makeText(getBaseContext(), "Enter the title", Toast.LENGTH_SHORT).show();
 
-                                    }else {
-                                        circularButton1.setProgress(0);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
                                 } else {
                                     //Yolanda
-                                    if (circularButton1.getProgress()==0){
-                                        simulateSuccessProgress(circularButton1);
+                                    if (nxtCirButton.getProgress() == 0) {
+                                        simulateSuccessProgress(nxtCirButton);
 
                                         List<String> answerList2 = DatabaseHandler.getExemplar(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId());
                                         String titleExample = answerList2.get(0);
@@ -344,7 +349,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                         dialog.dismiss();
                                                         rankDialog.setContentView(R.layout.rank_dialog);
                                                         rankDialog.setCancelable(true);
-                                                        final RatingBar ratingBar = (RatingBar)rankDialog.findViewById(R.id.dialog_ratingbar);
+                                                        final RatingBar ratingBar = (RatingBar) rankDialog.findViewById(R.id.dialog_ratingbar);
                                                         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                                                             public void onRatingChanged(RatingBar ratingBar, float rating,
                                                                                         boolean fromUser) {
@@ -358,7 +363,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                                 float point = (ratingBar.getRating());
                                                                 score += (marksList[subid - 1]) / point;
                                                                 rankDialog.dismiss();
-                                                                circularButton1.setProgress(0);
+                                                                nxtCirButton.setProgress(0);
                                                                 //Yolanda
                                                                 Next();
                                                             }
@@ -375,27 +380,27 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                         dialog.dismiss();
                                                         //remove the title
                                                         txtTitle.setText("");
-                                                        circularButton1.setProgress(0);
+                                                        nxtCirButton.setProgress(0);
                                                     }
                                                 }
                                         );
                                         mb.cancelable(false);
                                         mb.canceledOnTouchOutside(false);
                                         mb.show();
-                                    }else {
-                                        circularButton1.setProgress(0);
+                                    } else {
+                                        nxtCirButton.setProgress(0);
                                     }
 
                                 }
                             } else if (subid == 7) {
-                                if (circularButton1.getProgress()==0){
+                                if (nxtCirButton.getProgress() == 0) {
                                     if (checkpoint != 0) {
-                                        simulateErrorProgress(circularButton1);
+                                        simulateErrorProgress(nxtCirButton);
                                         score += marksList[subid];
                                         Toast.makeText(getBaseContext(), "Not all points are plotted", Toast.LENGTH_SHORT).show();
                                     } else {
                                         //Yolanda
-                                        simulateSuccessProgress(circularButton1);
+                                        simulateSuccessProgress(nxtCirButton);
                                         new MaterialDialog.Builder(DrawGraphActivity.this)
                                                 .content("Good job!You've finished all the points!Lets go to the next step!")
                                                 .positiveText("Next")
@@ -404,27 +409,27 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                             @Override
                                                             public void onClick(MaterialDialog dialog, DialogAction which) {
                                                                 dialog.dismiss();
-                                                                circularButton1.setProgress(0);
+                                                                nxtCirButton.setProgress(0);
                                                                 Next();
                                                             }
                                                         }
                                                 )
                                                 .show();
                                     }
-                                }else {
-                                    circularButton1.setProgress(0);
+                                } else {
+                                    nxtCirButton.setProgress(0);
                                 }
 
                             } else {
-                                if (circularButton1.getProgress()==0){
+                                if (nxtCirButton.getProgress() == 0) {
                                     String optionExpl;
-                                    if(grade == 4 && subQuesCount == 0) {
+                                    if (grade == 4 && subQuesCount == 0) {
                                         optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), 9, "none");
                                         //Make star for Label
-                                        simulateSuccessProgress(circularButton1);
+                                        simulateSuccessProgress(nxtCirButton);
                                         rankDialog.setContentView(R.layout.rank_dialog);
                                         rankDialog.setCancelable(true);
-                                        final RatingBar ratingBar = (RatingBar)rankDialog.findViewById(R.id.dialog_ratingbar);
+                                        final RatingBar ratingBar = (RatingBar) rankDialog.findViewById(R.id.dialog_ratingbar);
                                         // text.setText(optionExpl);
                                         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                                             public void onRatingChanged(RatingBar ratingBar, float rating,
@@ -442,17 +447,17 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                     score += (marksList[0]) / point;
                                                 }                                                //TODO: add next code
                                                 rankDialog.dismiss();
-                                                circularButton1.setProgress(0);
+                                                nxtCirButton.setProgress(0);
                                                 Next();
                                             }
                                         });
                                         //now that the dialog is set up, it's time to show it
                                         rankDialog.show();
                                         //grade4 Toast.makeText(getBaseContext(), "Please type in the label value for both X and Y axis before coming to the next question! ", Toast.LENGTH_SHORT).show();
-                                    }else{
+                                    } else {
                                         optionExpl = DatabaseHandler.getOptionExpl(currentQ.getMqId(), currentQ.getSubQuestionList().get(subQuesCount).getSubQuesId(), inputTxt);
                                         if (answerList.contains(inputTxt)) {
-                                            simulateSuccessProgress(circularButton1);
+                                            simulateSuccessProgress(nxtCirButton);
                                             new MaterialDialog.Builder(DrawGraphActivity.this)
                                                     .content(optionExpl)
                                                     .positiveText("Next")
@@ -461,7 +466,7 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                                 @Override
                                                                 public void onClick(MaterialDialog dialog, DialogAction which) {
                                                                     dialog.dismiss();
-                                                                    circularButton1.setProgress(0);
+                                                                    nxtCirButton.setProgress(0);
                                                                     Next();
                                                                 }
                                                             }
@@ -469,8 +474,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                     .show();
                                             //Toast.makeText(getBaseContext(), "Please type in the label value for both X and Y axis before coming to the next question! ", Toast.LENGTH_SHORT).show();
                                         } else {
-                                            simulateErrorProgress(circularButton1);
-                                            score += marksList[subid-1];
+                                            simulateErrorProgress(nxtCirButton);
+                                            score += marksList[subid - 1];
                                             new MaterialDialog.Builder(DrawGraphActivity.this)
                                                     .content(optionExpl)
                                                     .positiveText("OK")
@@ -479,15 +484,15 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                                                 @Override
                                                                 public void onClick(MaterialDialog dialog, DialogAction which) {
                                                                     dialog.dismiss();
-                                                                    circularButton1.setProgress(0);
+                                                                    nxtCirButton.setProgress(0);
                                                                 }
                                                             }
                                                     )
                                                     .show();
                                         }
                                     }
-                                }else {
-                                    circularButton1.setProgress(0);
+                                } else {
+                                    nxtCirButton.setProgress(0);
                                 }
 
 
@@ -603,7 +608,8 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
     public void Next(){
         if (qid < mainQuesList.size()) {
             if (subQuesCount < (currentQ.getSubQuestionList().size())) {
-                if (subQuesCount > 4 && grade > 3) {
+                //Teresa
+                if (subQuesCount > 4 && grade >= 3) {
                     seekRelative.setVisibility(View.VISIBLE);
                 }
 
@@ -795,11 +801,6 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                 drawYAxisLabel(downx, downy, eachBoxY, eachBoxX);
                             }
                         }
-                    }else if(subid == 4 || subid == 5) {
-                        Intent i = new Intent();
-                        i.setAction(Intent.ACTION_MAIN);
-                        i.addCategory(Intent.CATEGORY_APP_CALCULATOR);
-                        startActivity(i);
                     }else if(subid == 6){
                         drawTitle(downx, downy, eachBoxX, (eachBoxY * 9));
                     }
@@ -1735,13 +1736,17 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
         //generate the graph again
         generateGridLines();
         drawAxes();
-
+        //Teresa copy the whole part
         //draw all the interval values
-        for (int i = 0;i<8;i++){
+        for (int i=1;i<8;i++){
+            DecimalFormat df = new DecimalFormat();
+            df.setMaximumFractionDigits(2);
+            String valueX = df.format(xMultiple * i);
+            String valueY = df.format(yMultiple*i);
             canvas.drawCircle(eachBoxX * (i + 1), (eachBoxY * 9), 4, paint);
-            canvas.drawText(String.valueOf(0 + i), eachBoxX  * (i + 1), (eachBoxY * 9 + eachBoxY / 4), paint);
-            canvas.drawCircle(eachBoxX , eachBoxY *(9-i) , 4, paint);
-            canvas.drawText(String.valueOf(0 + i), eachBoxX*3/4  , eachBoxY * (9 -i), paint);
+            canvas.drawText(valueX, eachBoxX * (i + 1), (eachBoxY * 9 + eachBoxY / 4), paint);
+            canvas.drawCircle(eachBoxX, eachBoxY * (9 - i), 4, paint);
+            canvas.drawText(valueY, eachBoxX*3/4  , eachBoxY * (9 -i), paint);
         }
 
         //redraw the point we've putted on the graph
@@ -1756,10 +1761,11 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
             }
         }
 
-        //float valueX = (float) seekBarX.getProgress() / 10;
-        //float valueY = (float) seekBarY.getProgress() / 10;
-        float valueX = (xLowerValue + (seekBarX.getProgress() * step));
-        float valueY = (yLowerValue + (seekBarY.getProgress() * step));
+        //Teresa
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);
+        float valueY = Float.parseFloat(df.format(yLowerValue + (seekBarY.getProgress() * step)));
+        float valueX = Float.parseFloat(df.format(xLowerValue + (seekBarX.getProgress() * step)));
 
         tvXMax.setText("" + valueX);
         tvYMax.setText("" + valueY);
@@ -1799,13 +1805,15 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                 if ((xvalue > xInitial && yvalue > yInitial) && (xvalue < XEnd) && yvalue < YEnd) {
                     //now we need to check if x value and y value are correct
                     if (checkpoint != 0) {
-
-                        float valueX = (float) xLowerValue + (seekBarX.getProgress() * step);
-                        float valueY = (float) yLowerValue + (seekBarY.getProgress() * step);
+                        //Teresa next 4 lines
+                        DecimalFormat df = new DecimalFormat();
+                        df.setMaximumFractionDigits(2);
+                        float valueX = Float.parseFloat(df.format((xLowerValue + (seekBarX.getProgress() * step))*xMultiple));
+                        float valueY = Float.parseFloat(df.format((yLowerValue + (seekBarY.getProgress() * step)) * yMultiple));
 
                         for (int i = 0; (i < pointList.size()) && flag == false; i++) {
                             float coresXdata = pointList.get(i).x;
-                            float errorAllowed = (float) (.1 * coresXdata);
+                            float errorAllowed = (float) (.20 * coresXdata);
                             if (((coresXdata - errorAllowed) < valueX) && (valueX < (coresXdata + errorAllowed))) {
                                 float coresYdata = pointList.get(i).y;
                                 errorAllowed = (float) (.1 * coresYdata);
@@ -1814,10 +1822,10 @@ public class DrawGraphActivity  extends AppCompatActivity implements View.OnTouc
                                     if (pointTwice[i] == 0) {
                                         paint.setColor(Color.GREEN);
                                         int calculatedX = (int) (eachBoxX * ((pointList.get(i).x) / xMultiple) + eachBoxX);
-                                        int calculatedY = (int) (height - (eachBoxY * ((pointList.get(i).y) / yMultiple)) - eachBoxY);
+                                        int calculatedY = (int) ((height - (eachBoxY * ((pointList.get(i).y) / yMultiple)) - eachBoxY));
                                         canvas.drawCircle(calculatedX, calculatedY, 4, paint);
                                         paint.setColor(Color.BLACK);
-                                        canvas.drawText("(" + (pointList.get(i).x) + "," + (pointList.get(i).y) + ")", eachBoxX * (pointList.get(i).x + 1), eachBoxY * (9 - pointList.get(i).y) + 14, paint);
+                                        canvas.drawText("(" + coresXdata + "," + coresYdata + ")", calculatedX, calculatedY+14, paint);
                                         checkpoint--;
                                         pointTwice[i] = 1;
                                     } else {
