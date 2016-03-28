@@ -5,10 +5,7 @@
     android:orientation="vertical"
     android:padding="2dip">
 
-    <TextView android:text="Rate your answer" android:id="@+id/rank_dialog_text1"
-        android:textSize="24dp" android:layout_marginTop="10dp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+
 <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
